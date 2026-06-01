@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trắc nghiệm tính cách DISC — Bản phổ thông</title>
+<style>
+  :root{
+    --d:#E03B3B; --i:#F2A93B; --s:#3BA55C; --c:#3B7DE0;
+    --ink:#1d2433; --muted:#6b7280; --line:#e6e8ee; --bg:#f5f6fa; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:24px 18px 80px}
+  header.hero{background:linear-gradient(135deg,#1d2433,#3a2c66);color:#fff;border-radius:18px;
+    padding:30px 26px;margin-bottom:22px;box-shadow:0 10px 30px rgba(29,36,51,.18)}
+  header.hero h1{margin:0 0 6px;font-size:24px;letter-spacing:.2px}
+  header.hero p{margin:0;opacity:.86;font-size:15px}
+  .badge{display:inline-block;background:rgba(255,255,255,.15);padding:4px 11px;border-radius:999px;
+    font-size:12px;letter-spacing:.5px;margin-bottom:12px}
+  .intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+  .intro h2{margin:0 0 8px;font-size:16px}
+  .intro ol{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+  .intro li{margin-bottom:4px}
+  .progressbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 6px;margin-bottom:6px}
+  .progressbar .track{height:8px;background:#e3e6ef;border-radius:99px;overflow:hidden}
+  .progressbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--d),var(--i),var(--s),var(--c));transition:width .25s}
+  .progressbar .txt{font-size:12px;color:var(--muted);margin-top:5px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:border-color .2s}
+  .q.answered{border-color:#cdd6e8}
+  .q .num{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+  .q .text{font-size:16px;margin:4px 0 14px;font-weight:500}
+  .opts{display:flex;flex-direction:column;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:11px;border:1.5px solid var(--line);border-radius:11px;
+    padding:11px 14px;cursor:pointer;font-size:14.5px;color:var(--ink);user-select:none;transition:.15s;background:#fafbfe;line-height:1.45}
+  .opt:hover{border-color:#aab6d6;background:#f1f5fd}
+  .opt .mk{flex:0 0 20px;width:20px;height:20px;border:2px solid #c3ccde;border-radius:50%;margin-top:1px;transition:.15s}
+  .opt.sel{background:#2c3e66;border-color:#2c3e66;color:#fff;font-weight:500}
+  .opt.sel .mk{background:#fff;border-color:#fff;box-shadow:inset 0 0 0 4px #2c3e66}
+  .cta{position:sticky;bottom:0;padding:14px 0 4px;background:linear-gradient(0deg,var(--bg) 70%,transparent)}
+  button.submit{width:100%;padding:15px;border:0;border-radius:13px;background:#2c3e66;color:#fff;font-size:16px;
+    font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(44,62,102,.3)}
+  button.submit:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .warn{color:var(--d);font-size:13px;text-align:center;margin-top:8px;min-height:18px}
+  #result{display:none}
+  .res-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;margin-bottom:16px}
+  .res-head{text-align:center;margin-bottom:8px}
+  .res-head .big{font-size:54px;font-weight:800;line-height:1}
+  .res-head .label{font-size:20px;font-weight:700;margin-top:6px}
+  .res-head .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .bars{margin:22px 0 6px}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+  .bar-row .k{width:160px;font-size:13px;font-weight:600}
+  .bar-row .track{flex:1;height:16px;background:#eef0f6;border-radius:99px;overflow:hidden}
+  .bar-row .fill{height:100%;border-radius:99px;transition:width .8s ease}
+  .bar-row .pct{width:42px;text-align:right;font-size:13px;color:var(--muted);font-weight:600}
+  .section h3{font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+  .section ul{margin:6px 0 0;padding-left:20px}
+  .section li{margin-bottom:5px;font-size:14.5px}
+  .pill{display:inline-block;width:12px;height:12px;border-radius:4px}
+  .note{background:#fafbfe;border:1px dashed var(--line);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+  .retry{display:block;width:100%;text-align:center;padding:13px;border:1px solid var(--line);border-radius:12px;
+    background:#fff;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">TRẮC NGHIỆM TÍNH CÁCH DISC</span>
+    <h1>Bạn thuộc nhóm tính cách nào?</h1>
+    <p>30 tình huống · khoảng 6 phút · dành cho mọi người từ 16 tuổi trở lên</p>
+  </header>
+
+  <div class="intro" id="introBox">
+    <h2>Cách làm</h2>
+    <ol>
+      <li>Mỗi câu là một <b>tình huống đời thường</b>. Chọn đáp án <b>giống bạn nhất</b> — trả lời theo bản năng, đừng cân nhắc lâu.</li>
+      <li>Không có đáp án đúng/sai. Hãy chọn con người thật của bạn, không phải con người bạn "nên là".</li>
+      <li>Làm hết 30 câu rồi bấm <b>Xem kết quả</b> để hiểu hơn về tính cách của mình.</li>
+    </ol>
+  </div>
+
+  <div class="progressbar" id="pbar">
+    <div class="track"><div class="fill" id="pfill"></div></div>
+    <div class="txt" id="ptxt">0 / 30 câu</div>
+  </div>
+
+  <form id="quiz"></form>
+
+  <div class="cta">
+    <button class="submit" id="submitBtn" disabled>Xem kết quả</button>
+    <div class="warn" id="warn"></div>
+  </div>
+
+  <div id="result"></div>
+  <div class="foot">Trắc nghiệm theo mô hình DISC · Bản phổ thông cho mọi ngành nghề</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {t:"Khi nhận một nhiệm vụ mới, bạn thường…", opts:[
+    {d:"D",t:"Bắt tay làm ngay, vừa làm vừa điều chỉnh."},
+    {d:"I",t:"Rủ thêm người làm cùng cho vui và có động lực."},
+    {d:"S",t:"Tìm hiểu rõ rồi làm từ từ, chắc chắn."},
+    {d:"C",t:"Lên kế hoạch chi tiết trước khi bắt đầu."}]},
+  {t:"Trong một nhóm, bạn hay đóng vai trò…", opts:[
+    {d:"D",t:"Người dẫn dắt, đưa ra quyết định."},
+    {d:"I",t:"Người tạo không khí, kết nối mọi người."},
+    {d:"S",t:"Người hỗ trợ, lắng nghe, giữ hòa khí."},
+    {d:"C",t:"Người lo chi tiết, kiểm tra cho chuẩn."}]},
+  {t:"Khi gặp một vấn đề khó, bạn…", opts:[
+    {d:"D",t:"Lao vào xử lý ngay, quyết đoán."},
+    {d:"I",t:"Hỏi ý kiến nhiều người, bàn cho ra."},
+    {d:"S",t:"Bình tĩnh, từ từ tìm cách, nhờ hỗ trợ."},
+    {d:"C",t:"Phân tích nguyên nhân kỹ rồi mới giải quyết."}]},
+  {t:"Cách bạn ra một quyết định quan trọng…", opts:[
+    {d:"D",t:"Nhanh, dứt khoát, tin vào bản thân."},
+    {d:"I",t:"Theo cảm giác và lời khuyên người quen."},
+    {d:"S",t:"Cân nhắc kỹ, hỏi ý người thân, không vội."},
+    {d:"C",t:"Dựa trên thông tin, số liệu, phân tích."}]},
+  {t:"Bạn thấy mình nói chuyện theo kiểu…", opts:[
+    {d:"D",t:"Thẳng thắn, ngắn gọn, đi vào việc."},
+    {d:"I",t:"Sôi nổi, hài hước, hay kể chuyện."},
+    {d:"S",t:"Nhẹ nhàng, từ tốn, biết lắng nghe."},
+    {d:"C",t:"Rõ ràng, chính xác, có dẫn chứng."}]},
+  {t:"Điều khiến bạn có động lực nhất?", opts:[
+    {d:"D",t:"Đạt mục tiêu, chiến thắng, vượt qua chính mình."},
+    {d:"I",t:"Được công nhận, khen ngợi, chú ý."},
+    {d:"S",t:"Môi trường ổn định, được tin tưởng."},
+    {d:"C",t:"Làm đúng, chất lượng, chỉn chu."}]},
+  {t:"Làm việc nhóm mà có người ì ạch, bạn…", opts:[
+    {d:"D",t:"Nói thẳng và thúc tiến độ."},
+    {d:"I",t:"Động viên, khích lệ cho vui."},
+    {d:"S",t:"Nhẫn nại hỗ trợ người đó."},
+    {d:"C",t:"Chỉ ra phần việc cụ thể cần làm."}]},
+  {t:"Bàn làm việc / góc học tập của bạn…", opts:[
+    {d:"D",t:"Gọn, tối giản, chỉ thứ cần dùng."},
+    {d:"I",t:"Hơi bừa, nhiều đồ cá nhân."},
+    {d:"S",t:"Ấm cúng, có vật kỷ niệm quen thuộc."},
+    {d:"C",t:"Ngăn nắp, mọi thứ đúng chỗ."}]},
+  {t:"Trên mạng xã hội, bạn hay…", opts:[
+    {d:"D",t:"Đăng thành quả, quan điểm, mục tiêu."},
+    {d:"I",t:"Đăng nhiều: ảnh vui, sự kiện, bạn bè."},
+    {d:"S",t:"Ít đăng, hay động viên/chúc mừng người khác."},
+    {d:"C",t:"Đăng kiến thức, bài phân tích, hoặc rất ít."}]},
+  {t:"Bạn thích được sếp/thầy cô khen kiểu…", opts:[
+    {d:"D",t:"Công nhận bạn xuất sắc, dẫn đầu."},
+    {d:"I",t:"Khen công khai trước mọi người."},
+    {d:"S",t:"Lời cảm ơn chân thành, riêng tư."},
+    {d:"C",t:"Ghi nhận sự cẩn thận, chính xác."}]},
+  {t:"Cuối tuần rảnh, bạn thiên về…", opts:[
+    {d:"D",t:"Làm việc dang dở hoặc chinh phục mục tiêu."},
+    {d:"I",t:"Gặp gỡ bạn bè, đi chỗ đông vui."},
+    {d:"S",t:"Ở nhà nghỉ ngơi cùng người thân."},
+    {d:"C",t:"Đọc, học, sắp xếp, làm điều mình thích yên tĩnh."}]},
+  {t:"Khi tiếp thu một điều mới, bạn nhanh nhất khi…", opts:[
+    {d:"D",t:"Bắt tay làm thử ngay."},
+    {d:"I",t:"Trao đổi, thảo luận sôi nổi."},
+    {d:"S",t:"Được hướng dẫn từng bước, có người kèm."},
+    {d:"C",t:"Tự đọc kỹ tài liệu, có ví dụ rõ ràng."}]},
+  {t:"Có người làm bạn phật ý, bạn…", opts:[
+    {d:"D",t:"Nói thẳng cho rõ chuyện."},
+    {d:"I",t:"Giận chút rồi làm hòa, bỏ qua."},
+    {d:"S",t:"Im lặng, tránh xung đột."},
+    {d:"C",t:"Suy xét đúng sai trước khi phản ứng."}]},
+  {t:"Phong cách ăn mặc của bạn…", opts:[
+    {d:"D",t:"Mạnh mẽ, cá tính, thể hiện bản thân."},
+    {d:"I",t:"Hợp mốt, nổi bật, nhiều màu."},
+    {d:"S",t:"Giản dị, thoải mái, dễ chịu."},
+    {d:"C",t:"Gọn gàng, chỉn chu, phù hợp."}]},
+  {t:"Khi đạt được một thành tích, bạn…", opts:[
+    {d:"D",t:"Đặt ngay mục tiêu cao hơn."},
+    {d:"I",t:"Chia sẻ, ăn mừng với mọi người."},
+    {d:"S",t:"Vui thầm, biết ơn người đã giúp."},
+    {d:"C",t:"Hài lòng vì đã làm kỹ lưỡng."}]},
+  {t:"Tin nhắn của bạn thường…", opts:[
+    {d:"D",t:"Ngắn gọn, đi thẳng việc."},
+    {d:"I",t:"Nhiều, vui, nhiều emoji."},
+    {d:"S",t:"Nhẹ nhàng, hay hỏi thăm."},
+    {d:"C",t:"Đầy đủ, rõ ràng, đúng chính tả."}]},
+  {t:"Điều khiến bạn khó chịu nhất?", opts:[
+    {d:"D",t:"Bị kiểm soát, mọi thứ lề mề, vòng vo."},
+    {d:"I",t:"Bị phớt lờ, không khí buồn tẻ."},
+    {d:"S",t:"Xung đột, thay đổi đột ngột, bị thúc ép."},
+    {d:"C",t:"Làm ẩu, thiếu quy tắc, sai sót."}]},
+  {t:"Được hỏi điều chưa chắc chắn, bạn…", opts:[
+    {d:"D",t:"Tự tin đưa ra hướng, kiểm chứng sau."},
+    {d:"I",t:"Trả lời linh hoạt, giữ không khí thoải mái."},
+    {d:"S",t:"Thành thật nói sẽ tìm hiểu thêm."},
+    {d:"C",t:"Dừng lại, kiểm tra kỹ rồi mới trả lời."}]},
+  {t:"Trong một sự kiện đông người, bạn…", opts:[
+    {d:"D",t:"Tìm người quan trọng để trao đổi việc."},
+    {d:"I",t:"Giao lưu, làm quen thật nhiều người."},
+    {d:"S",t:"Trò chuyện với vài người quen, hỗ trợ khi cần."},
+    {d:"C",t:"Quan sát, chọn lọc rồi mới tham gia."}]},
+  {t:"Khi mua một món đắt tiền, bạn…", opts:[
+    {d:"D",t:"Quyết nhanh nếu thấy đáng."},
+    {d:"I",t:"Mua theo cảm hứng, theo xu hướng."},
+    {d:"S",t:"Hỏi ý người thân, cân nhắc kỹ."},
+    {d:"C",t:"So sánh, đọc đánh giá, tính toán rồi mới mua."}]},
+  {t:"Khi sắp đến hạn chót, bạn…", opts:[
+    {d:"D",t:"Tập trung làm nhanh phần quan trọng."},
+    {d:"I",t:"Hay nước rút vào phút chót."},
+    {d:"S",t:"Làm đều đặn, đúng hạn, không thích gấp."},
+    {d:"C",t:"Hoàn thành sớm và kiểm tra lại."}]},
+  {t:"Bạn muốn được giao việc theo kiểu…", opts:[
+    {d:"D",t:"Cho mục tiêu và toàn quyền cách làm."},
+    {d:"I",t:"Việc có tương tác, được thể hiện."},
+    {d:"S",t:"Hướng dẫn rõ, ổn định, có hỗ trợ."},
+    {d:"C",t:"Tiêu chuẩn rõ, quy trình cụ thể."}]},
+  {t:"Khi gặp thất bại, bạn…", opts:[
+    {d:"D",t:"Đứng dậy nhanh, làm lại quyết liệt hơn."},
+    {d:"I",t:"Buồn một chút rồi lạc quan trở lại."},
+    {d:"S",t:"Cần thời gian và sự động viên."},
+    {d:"C",t:"Phân tích nguyên nhân để cải thiện."}]},
+  {t:"Ai đó nhờ giúp lúc bạn đang bận, bạn…", opts:[
+    {d:"D",t:"Nói thẳng đang bận, hẹn lúc khác."},
+    {d:"I",t:"Vui vẻ giúp, hoặc làm cùng cho vui."},
+    {d:"S",t:"Gác việc mình lại để giúp."},
+    {d:"C",t:"Giúp sau khi hoàn thành việc đang dở."}]},
+  {t:"Bạn đánh giá một cơ hội (việc làm, đầu tư) dựa vào…", opts:[
+    {d:"D",t:"Lợi ích nhanh, tiềm năng lớn."},
+    {d:"I",t:"Cảm hứng, độ thú vị, người cùng làm."},
+    {d:"S",t:"Sự an toàn, ổn định lâu dài."},
+    {d:"C",t:"Dữ liệu, rủi ro, tính hợp lý."}]},
+  {t:"Trong một buổi học/họp, bạn thích…", opts:[
+    {d:"D",t:"Đi nhanh vào trọng tâm và hành động."},
+    {d:"I",t:"Có tương tác, hoạt động sôi nổi."},
+    {d:"S",t:"Không khí thoải mái, được hỗ trợ."},
+    {d:"C",t:"Nội dung bài bản, đầy đủ, chính xác."}]},
+  {t:"Khi bất đồng với người thân, bạn…", opts:[
+    {d:"D",t:"Nói thẳng quan điểm của mình."},
+    {d:"I",t:"Làm dịu bằng sự hài hước."},
+    {d:"S",t:"Nhường nhịn để giữ hòa khí."},
+    {d:"C",t:"Đưa lý lẽ để phân định."}]},
+  {t:"Câu nào \"giống bạn\" nhất?", opts:[
+    {d:"D",t:"\"Cứ làm đi rồi tính.\""},
+    {d:"I",t:"\"Có mình là vui!\""},
+    {d:"S",t:"\"Cần gì cứ nói, mình giúp.\""},
+    {d:"C",t:"\"Khoan, làm cho đúng đã.\""}]},
+  {t:"Mục tiêu cuộc sống của bạn nghiêng về…", opts:[
+    {d:"D",t:"Thành công, dẫn đầu, làm chủ."},
+    {d:"I",t:"Được yêu quý, nổi bật, nhiều mối quan hệ."},
+    {d:"S",t:"Bình yên, ổn định, gắn bó người thân."},
+    {d:"C",t:"Giỏi chuyên môn, hiểu biết sâu, sống đúng nguyên tắc."}]},
+  {t:"Khi áp lực dồn dập, bạn…", opts:[
+    {d:"D",t:"Càng quyết liệt, lao vào giải quyết."},
+    {d:"I",t:"Cần được động viên, chia sẻ."},
+    {d:"S",t:"Dễ căng thẳng, cần môi trường ổn định."},
+    {d:"C",t:"Lập kế hoạch, kiểm soát từng việc."}]},
+];
+
+const INFO = {
+  D:{name:"D — Người Thủ Lĩnh", color:"var(--d)", tag:"Quyết đoán · Kết quả · Cạnh tranh",
+    desc:"Bạn hướng tới kết quả, tốc độ và mục tiêu. Bạn dám quyết, dám làm, thích dẫn dắt và vượt qua thử thách.",
+    strong:["Quyết đoán, dám chịu trách nhiệm","Dẫn dắt và truyền lửa cho người khác","Tập trung vào kết quả, không bỏ cuộc"],
+    watch:["Dễ nóng vội, thiếu kiên nhẫn","Có thể lấn át người nhẹ tính hơn","Đôi khi bỏ qua cảm xúc của người khác"],
+    others:["Đi thẳng vào vấn đề, nói kết quả trước","Cho bạn quyền tự quyết, không kiểm soát quá mức","Góp ý thẳng, ngắn gọn; đừng vòng vo"]},
+  I:{name:"I — Người Truyền Cảm Hứng", color:"var(--i)", tag:"Quan hệ · Nhiệt huyết · Lạc quan",
+    desc:"Bạn sống bằng cảm xúc và sự kết nối. Bạn vui vẻ, hoạt ngôn, dễ tạo thiện cảm và truyền năng lượng tích cực cho mọi người.",
+    strong:["Giao tiếp tốt, tạo thiện cảm rất nhanh","Lạc quan, truyền cảm hứng cho người xung quanh","Linh hoạt, sáng tạo, dám thể hiện"],
+    watch:["Dễ quên chi tiết, thiếu kiên trì","Cần được công nhận, dễ hụt hơi khi bị phớt lờ","Đôi khi hứa quá lời hoặc nói nhiều hơn làm"],
+    others:["Khen ngợi và công nhận bạn","Tạo không khí vui vẻ, cởi mở","Hỗ trợ bạn bám sát chi tiết và kế hoạch"]},
+  S:{name:"S — Người Đồng Hành", color:"var(--s)", tag:"Ổn định · Tận tâm · Trung thành",
+    desc:"Bạn đáng tin và kiên nhẫn. Bạn biết lắng nghe, sẵn lòng hỗ trợ và là chỗ dựa vững vàng cho mọi người quanh mình.",
+    strong:["Kiên nhẫn, bền bỉ, đáng tin cậy","Biết lắng nghe và hỗ trợ người khác","Trung thành, giữ hòa khí trong nhóm"],
+    watch:["Ngại thay đổi và né tránh xung đột","Khó nói \"không\", dễ ôm việc của người khác","Cần thời gian để thích nghi, không thích bị thúc"],
+    others:["Trao đổi nhẹ nhàng, kiên nhẫn","Báo trước thay đổi, tạo cảm giác an toàn","Ghi nhận chân thành, riêng tư (họ ngại bị tung hô)"]},
+  C:{name:"C — Người Chuẩn Mực", color:"var(--c)", tag:"Chính xác · Logic · Cẩn thận",
+    desc:"Bạn coi trọng sự đúng đắn và chất lượng. Bạn làm việc kỹ lưỡng, suy nghĩ thấu đáo và rất đáng tin về chuyên môn.",
+    strong:["Cẩn thận, chính xác, ít sai sót","Tư duy logic, phân tích tốt","Có nguyên tắc, làm việc đáng tin cậy"],
+    watch:["Cầu toàn nên đôi khi quyết định chậm","Khó linh hoạt khi thiếu thông tin","Ít biểu lộ cảm xúc, dễ bị xem là khô khan"],
+    others:["Đưa thông tin, dữ liệu rõ ràng","Thuyết phục bằng lý lẽ, bằng chứng","Cho thời gian chuẩn bị; đừng ép quyết vội"]},
+};
+const COLORHEX = {D:"#E03B3B", I:"#F2A93B", S:"#3BA55C", C:"#3B7DE0"};
+
+const form=document.getElementById('quiz'), answers={};
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+QUESTIONS.forEach((q,i)=>{
+  const div=document.createElement('div'); div.className='q'; div.id='q'+i;
+  const opts=shuffle(q.opts).map(o=>`
+    <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
+  div.innerHTML=`<div class="num">TÌNH HUỐNG ${i+1}/30</div>
+    <div class="text">${q.t}</div><div class="opts">${opts}</div>`;
+  form.appendChild(div);
+});
+const pfill=document.getElementById('pfill'),ptxt=document.getElementById('ptxt'),
+      submitBtn=document.getElementById('submitBtn'),warn=document.getElementById('warn');
+form.addEventListener('click',e=>{
+  const opt=e.target.closest('.opt'); if(!opt) return;
+  const qi=opt.dataset.q; answers[qi]=opt.dataset.d;
+  opt.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  opt.classList.add('sel'); document.getElementById('q'+qi).classList.add('answered');
+  const n=Object.keys(answers).length;
+  pfill.style.width=(n/30*100)+'%'; ptxt.textContent=n+' / 30 câu';
+  submitBtn.disabled=n<30; if(n===30) warn.textContent='';
+});
+submitBtn.addEventListener('click',()=>{
+  if(Object.keys(answers).length<30){
+    const miss=[]; for(let i=0;i<30;i++) if(!(i in answers)) miss.push(i+1);
+    warn.textContent='Bạn còn thiếu câu: '+miss.slice(0,10).join(', ')+(miss.length>10?'...':'');
+    document.getElementById('q'+(miss[0]-1)).scrollIntoView({behavior:'smooth',block:'center'}); return;
+  }
+  showResult();
+});
+function showResult(){
+  const count={D:0,I:0,S:0,C:0};
+  Object.values(answers).forEach(d=>{ if(count[d]!==undefined) count[d]++; });
+  const total=QUESTIONS.length, pct={};
+  for(const k in count) pct[k]=Math.round(count[k]/total*100);
+  const order=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
+  const primary=order[0],secondary=order[1],info=INFO[primary];
+  const barsHtml=order.map(k=>`
+    <div class="bar-row">
+      <div class="k"><span class="pill" style="background:${COLORHEX[k]}"></span> ${INFO[k].name}</div>
+      <div class="track"><div class="fill" style="background:${COLORHEX[k]};width:0" data-w="${pct[k]}"></div></div>
+      <div class="pct">${pct[k]}%</div>
+    </div>`).join('');
+  const html=`
+  <div class="res-card">
+    <div class="res-head">
+      <div class="big" style="color:${info.color}">${primary}</div>
+      <div class="label">${info.name}</div>
+      <div class="sub">${info.tag}</div>
+      <div class="sub" style="margin-top:8px">Nhóm phụ của bạn: <b>${secondary}</b> — ${INFO[secondary].name.split('—')[1].trim()}</div>
+    </div>
+    <div class="bars">${barsHtml}</div>
+    <div class="section">
+      <p style="font-size:15px">${info.desc}</p>
+      <h3><span class="pill" style="background:${info.color}"></span> Điểm mạnh của bạn</h3>
+      <ul>${info.strong.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <h3>⚠️ Điểm cần lưu ý</h3>
+      <ul>${info.watch.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <h3>🤝 Cách người khác nên giao tiếp & làm việc với bạn</h3>
+      <ul>${info.others.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <div class="note">
+        <b>Lưu ý:</b> Không ai thuần 100% một nhóm. Bạn là sự pha trộn của <b>${primary}</b> (chính) và <b>${secondary}</b> (phụ).
+        DISC mô tả <i>phong cách hành vi</i>, không đo năng lực hay giá trị con người — không nhóm nào "tốt" hay "xấu" hơn.
+      </div>
+    </div>
+    <button class="retry" onclick="location.reload()">↻ Làm lại bài test</button>
+  </div>`;
+  const res=document.getElementById('result');
+  res.innerHTML=html; res.style.display='block';
+  document.getElementById('quiz').style.display='none';
+  document.querySelector('.cta').style.display='none';
+  document.getElementById('pbar').style.display='none';
+  document.getElementById('introBox').style.display='none';
+  res.scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{ res.querySelectorAll('.bar-row .fill').forEach(f=>f.style.width=f.dataset.w+'%'); },120);
+}
+</script>
+</body>
+</html>

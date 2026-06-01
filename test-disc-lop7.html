@@ -7,9 +7,10 @@
 <style>
   :root{
     --d:#FF6B5E; --i:#FFB23E; --s:#4FBF74; --c:#5B8DEF;
-    --ink:#2a2e3a; --muted:#7a8194; --line:#ececf4; --bg:#fff7f0; --card:#ffffff;
+    --ink:#2a2e3a; --muted:#7a8194; --line:#ececf4; --card:#ffffff;
   }
   *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
     background:linear-gradient(180deg,#fff7f0,#f0f7ff);color:var(--ink);line-height:1.55}
   .wrap{max-width:760px;margin:0 auto;padding:22px 16px 80px}
@@ -28,13 +29,13 @@
   .q.answered{border-color:#d9c9f0;background:#fffdfb}
   .q .num{font-size:12px;color:#a17ee0;font-weight:700}
   .q .text{font-size:17px;margin:5px 0 14px;font-weight:600}
-  .scale{display:flex;gap:6px;flex-wrap:wrap}
-  .scale label{flex:1;min-width:70px;text-align:center;border:2px solid var(--line);border-radius:14px;
-    padding:10px 4px;cursor:pointer;font-size:12px;color:var(--muted);user-select:none;transition:.15s;background:#fff}
-  .scale label .em{display:block;font-size:22px;margin-bottom:3px}
-  .scale label:hover{border-color:#ffb23e}
-  .scale input{display:none}
-  .scale label.sel{background:#6a5ae0;border-color:#6a5ae0;color:#fff;font-weight:700}
+  .opts{display:flex;flex-direction:column;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:11px;border:2px solid var(--line);border-radius:14px;
+    padding:11px 14px;cursor:pointer;font-size:15px;color:var(--ink);user-select:none;transition:.15s;background:#fff;line-height:1.45}
+  .opt:hover{border-color:#ffb23e;background:#fffdf7}
+  .opt .mk{flex:0 0 20px;width:20px;height:20px;border:2px solid #d9c9f0;border-radius:50%;margin-top:1px;transition:.15s}
+  .opt.sel{background:#6a5ae0;border-color:#6a5ae0;color:#fff;font-weight:600}
+  .opt.sel .mk{background:#fff;border-color:#fff;box-shadow:inset 0 0 0 4px #6a5ae0}
   .cta{position:sticky;bottom:0;padding:14px 0 4px;background:linear-gradient(0deg,#f0f7ff 70%,transparent)}
   button.submit{width:100%;padding:16px;border:0;border-radius:16px;background:linear-gradient(135deg,#6a5ae0,#ff7eb3);
     color:#fff;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(106,90,224,.3)}
@@ -60,19 +61,59 @@
   .retry{display:block;width:100%;text-align:center;padding:14px;border:2px solid var(--line);border-radius:14px;
     background:#fff;color:var(--ink);font-size:15px;font-weight:600;cursor:pointer;margin-top:10px}
   .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:24px}
+  /* cổng mã lớp */
+  .gate{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#6a5ae0,#ff7eb3);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .gate.hidden{display:none}
+  .gate .box{background:#fff;border-radius:20px;padding:30px 26px;max-width:360px;width:100%;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.25)}
+  .gate .box .lock{font-size:38px}
+  .gate .box h2{margin:6px 0 6px;font-size:20px;color:#2a2e3a}
+  .gate .box p{margin:0 0 18px;color:#7a8194;font-size:14px}
+  .gate input{width:100%;padding:13px;border:2px solid #ececf4;border-radius:13px;font-size:16px;text-align:center;letter-spacing:1px;margin-bottom:10px}
+  .gate input:focus{outline:none;border-color:#6a5ae0}
+  .gate button{width:100%;padding:13px;border:0;border-radius:13px;background:linear-gradient(135deg,#6a5ae0,#ff7eb3);color:#fff;font-size:16px;font-weight:700;cursor:pointer}
+  .gate .err{color:#ff6b5e;font-size:13px;min-height:18px;margin-top:8px}
 </style>
 </head>
 <body>
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="lock">🔒</div>
+    <h2>Khám phá tính cách</h2>
+    <p>Nhập <b>mã lớp</b> để bắt đầu nhé!</p>
+    <input id="gateInput" type="text" placeholder="Mã lớp" autocomplete="off">
+    <button id="gateBtn">Bắt đầu 🚀</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+</div>
+<script>
+  // ====== MÃ LỚP — đổi tại đây ======
+  const ACCESS_CODE = "DISC2026";
+  (function(){
+    const gate=document.getElementById('gate'), inp=document.getElementById('gateInput'),
+          btn=document.getElementById('gateBtn'), err=document.getElementById('gateErr');
+    if(sessionStorage.getItem('disc_kid_ok')==='1') gate.classList.add('hidden');
+    function unlock(){
+      if(inp.value.trim().toUpperCase()===ACCESS_CODE.toUpperCase()){
+        sessionStorage.setItem('disc_kid_ok','1'); gate.classList.add('hidden');
+      } else { err.textContent='Mã chưa đúng, thử lại nha!'; inp.select(); }
+    }
+    btn.addEventListener('click',unlock);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') unlock(); });
+    setTimeout(()=>inp.focus(),100);
+  })();
+</script>
+
 <div class="wrap">
   <header class="hero">
     <div class="emoji">🌟</div>
     <h1>Khám phá: Em là kiểu người nào?</h1>
-    <p>30 câu vui · khoảng 5 phút · không có đúng hay sai đâu nhé!</p>
+    <p>30 tình huống vui · khoảng 5 phút · không có đúng hay sai đâu nhé!</p>
   </header>
 
   <div class="intro" id="introBox">
-    Chào em! 👋 Đây là một trò khám phá bản thân siêu thú vị. Hãy đọc từng câu và chọn xem nó
-    <b>giống em tới mức nào</b>. Trả lời thật lòng theo cảm giác đầu tiên nha — <b>không có câu trả lời đúng hay sai</b>.
+    Chào em! 👋 Mỗi câu là một <b>tình huống nho nhỏ</b> ở trường, với bạn bè hoặc ở nhà.
+    Em hãy chọn <b>cách giống em nhất</b> — chọn theo cảm giác đầu tiên, <b>không có đáp án đúng hay sai</b>.
     Làm xong 30 câu, em sẽ biết mình giống <b>con vật tính cách</b> nào! 🐯🐵🐨🦉
   </div>
 
@@ -94,55 +135,163 @@
 
 <script>
 const QUESTIONS = [
-  // D
-  {t:"Mình thích làm nhóm trưởng và phân công việc cho các bạn.", d:"D"},
-  {t:"Khi chơi trò chơi, mình rất muốn giành chiến thắng.", d:"D"},
-  {t:"Mình dám nói lên ý kiến của mình, kể cả khi khác với số đông.", d:"D"},
-  {t:"Mình thích những thử thách khó, càng khó càng thích.", d:"D"},
-  {t:"Mình quyết định khá nhanh, không thích chần chừ.", d:"D"},
-  {t:"Mình không thích bị nhắc phải làm từng li từng tí.", d:"D"},
-  {t:"Khi có việc cần làm, mình muốn bắt tay vào ngay lập tức.", d:"D"},
-  {t:"Mình thích tự giải quyết vấn đề hơn là nhờ người khác.", d:"D"},
-  // I
-  {t:"Mình có nhiều bạn và rất dễ làm quen với bạn mới.", d:"I"},
-  {t:"Mình thích kể chuyện, pha trò cho cả lớp nghe.", d:"I"},
-  {t:"Mình vui lắm khi được cô hoặc bố mẹ khen trước mọi người.", d:"I"},
-  {t:"Mình thích các hoạt động sôi nổi, vui nhộn, đông người.", d:"I"},
-  {t:"Mình thỉnh thoảng hay quên mang đồ hoặc quên bài tập.", d:"I"},
-  {t:"Mình thường nghĩ 'mọi chuyện rồi sẽ ổn thôi'.", d:"I"},
-  {t:"Mình thấy chán khi phải ngồi yên làm một mình quá lâu.", d:"I"},
-  // S
-  {t:"Mình hay giúp đỡ bạn bè khi các bạn gặp khó khăn.", d:"S"},
-  {t:"Mình thích mọi thứ quen thuộc, ít thay đổi.", d:"S"},
-  {t:"Mình cần thời gian để làm quen khi chuyển lớp hoặc trường mới.", d:"S"},
-  {t:"Mình không thích cãi nhau, mình muốn mọi người hoà thuận.", d:"S"},
-  {t:"Mình là người bạn mà các bạn hay tìm đến để tâm sự.", d:"S"},
-  {t:"Mình kiên nhẫn làm cho xong việc dù mất nhiều thời gian.", d:"S"},
-  {t:"Mình thấy yên tâm hơn khi biết trước hôm nay sẽ làm gì.", d:"S"},
-  {t:"Mình luôn cố gắng giữ lời hứa với bạn bè.", d:"S"},
-  // C
-  {t:"Mình làm bài cẩn thận và kiểm tra lại trước khi nộp.", d:"C"},
-  {t:"Mình thích làm theo đúng hướng dẫn và quy tắc.", d:"C"},
-  {t:"Mình khó chịu khi bài làm bị sai hoặc cẩu thả.", d:"C"},
-  {t:"Mình thích tìm hiểu kỹ vì sao mọi thứ lại như vậy.", d:"C"},
-  {t:"Mình thường suy nghĩ thật kỹ trước khi quyết định.", d:"C"},
-  {t:"Mình giữ sách vở và góc học tập gọn gàng, ngăn nắp.", d:"C"},
-  {t:"Mình thích mọi thứ rõ ràng, đúng là đúng, sai là sai.", d:"C"},
-];
-
-const SCALE = [
-  {v:1,l:"Không giống",e:"🙅"},
-  {v:2,l:"Hơi giống",e:"🤏"},
-  {v:3,l:"Bình thường",e:"😐"},
-  {v:4,l:"Khá giống",e:"😊"},
-  {v:5,l:"Đúng mình!",e:"🙌"},
+  {t:"Cô giáo cho làm bài tập nhóm — em thường…", opts:[
+    {d:"D",t:"Đứng ra phân công và dẫn dắt cả nhóm."},
+    {d:"I",t:"Khuấy động cho nhóm vui, kết nối các bạn."},
+    {d:"S",t:"Hỗ trợ bạn, làm chăm chỉ phần được giao."},
+    {d:"C",t:"Lo phần cần chính xác, kiểm tra kỹ bài."}]},
+  {t:"Giờ ra chơi, em thích…", opts:[
+    {d:"D",t:"Chơi trò có thắng thua, thi đấu."},
+    {d:"I",t:"Tụ tập nói chuyện, đùa giỡn với nhiều bạn."},
+    {d:"S",t:"Chơi với một, hai bạn thân quen."},
+    {d:"C",t:"Đọc sách, xếp hình, làm điều mình thích yên tĩnh."}]},
+  {t:"Khi chơi trò chơi mà sắp thua, em…", opts:[
+    {d:"D",t:"Cố hết sức để lật ngược, rất muốn thắng."},
+    {d:"I",t:"Cười xòa, miễn vui là được."},
+    {d:"S",t:"Không sao, chơi vui với bạn là chính."},
+    {d:"C",t:"Tìm cách chơi đúng luật và hợp lý hơn."}]},
+  {t:"Cô giao một việc khó, em…", opts:[
+    {d:"D",t:"Xông vào làm ngay — thử thách mà!"},
+    {d:"I",t:"Rủ bạn cùng làm cho vui."},
+    {d:"S",t:"Làm từ từ, hỏi cô hoặc bạn khi cần."},
+    {d:"C",t:"Tìm hiểu kỹ cách làm trước khi bắt đầu."}]},
+  {t:"Trong lớp, em hay là người…", opts:[
+    {d:"D",t:"Xung phong, dẫn đầu, nói lên ý kiến."},
+    {d:"I",t:"Làm cả lớp cười, được nhiều bạn quý."},
+    {d:"S",t:"Hiền, ít nói, hay giúp đỡ bạn."},
+    {d:"C",t:"Học kỹ, làm bài cẩn thận, ngăn nắp."}]},
+  {t:"Phòng của em trông thế nào?", opts:[
+    {d:"D",t:"Gọn, ít đồ, chủ yếu thứ em cần."},
+    {d:"I",t:"Nhiều đồ vui, hình dán, màu sắc."},
+    {d:"S",t:"Ấm cúng, có thú bông, đồ quen thuộc."},
+    {d:"C",t:"Ngăn nắp, sách vở xếp gọn gàng."}]},
+  {t:"Khi có bạn mới chuyển vào lớp, em…", opts:[
+    {d:"D",t:"Chủ động rủ bạn tham gia, \"đi với tớ\"."},
+    {d:"I",t:"Bắt chuyện ngay, làm quen vui vẻ."},
+    {d:"S",t:"Nhẹ nhàng giúp bạn làm quen từ từ."},
+    {d:"C",t:"Quan sát một lúc rồi mới lại gần."}]},
+  {t:"Bài kiểm tra bị điểm kém, em…", opts:[
+    {d:"D",t:"Quyết tâm lần sau phải hơn."},
+    {d:"I",t:"Buồn một chút rồi thôi, mai lại vui."},
+    {d:"S",t:"Hơi lo, cần ba mẹ động viên."},
+    {d:"C",t:"Xem lại sai chỗ nào để sửa."}]},
+  {t:"Em thích được khen kiểu nào?", opts:[
+    {d:"D",t:"\"Con giỏi nhất, làm được việc khó!\""},
+    {d:"I",t:"Khen trước mặt các bạn cho oai."},
+    {d:"S",t:"Một lời khen ấm áp, riêng tư."},
+    {d:"C",t:"Khen vì làm cẩn thận, đúng, sạch đẹp."}]},
+  {t:"Cuối tuần em thích…", opts:[
+    {d:"D",t:"Chơi thể thao, trò vận động, thi đấu."},
+    {d:"I",t:"Đi chơi với bạn bè, chỗ đông vui."},
+    {d:"S",t:"Ở nhà với gia đình, xem phim."},
+    {d:"C",t:"Đọc, vẽ, lắp ráp, tìm hiểu điều mới."}]},
+  {t:"Khi học bài mới, em hiểu nhanh nhất khi…", opts:[
+    {d:"D",t:"Làm thử luôn, vừa làm vừa hiểu."},
+    {d:"I",t:"Cô kể chuyện vui, có ví dụ sinh động."},
+    {d:"S",t:"Được hướng dẫn từ từ, có người kèm."},
+    {d:"C",t:"Đọc kỹ, ghi chép đầy đủ, có ví dụ rõ."}]},
+  {t:"Bạn làm em buồn, em…", opts:[
+    {d:"D",t:"Nói thẳng cho bạn biết."},
+    {d:"I",t:"Giận chút rồi làm lành, đi chơi tiếp."},
+    {d:"S",t:"Im lặng, ngại cãi nhau."},
+    {d:"C",t:"Suy nghĩ xem ai đúng ai sai."}]},
+  {t:"Em thích bạn bè kiểu…", opts:[
+    {d:"D",t:"Năng động, dám làm, chơi \"máu\"."},
+    {d:"I",t:"Vui tính, nói chuyện hợp, nhiều trò."},
+    {d:"S",t:"Hiền, tốt bụng, đáng tin."},
+    {d:"C",t:"Học giỏi, nghiêm túc, hiểu biết."}]},
+  {t:"Em chọn quần áo đi chơi theo kiểu…", opts:[
+    {d:"D",t:"Khỏe khoắn, cá tính, nổi bật."},
+    {d:"I",t:"Hợp mốt, màu sắc, bắt mắt."},
+    {d:"S",t:"Thoải mái, giản dị."},
+    {d:"C",t:"Gọn gàng, lịch sự, đúng dịp."}]},
+  {t:"Khi đạt điểm cao, em…", opts:[
+    {d:"D",t:"Muốn lần sau cao hơn nữa."},
+    {d:"I",t:"Khoe ngay với bạn bè, ba mẹ."},
+    {d:"S",t:"Vui thầm, cảm ơn người đã giúp."},
+    {d:"C",t:"Tự hào vì mình đã làm cẩn thận."}]},
+  {t:"Nhắn tin cho bạn, tin của em thường…", opts:[
+    {d:"D",t:"Ngắn gọn, vào việc."},
+    {d:"I",t:"Nhiều, nhiều icon và sticker vui."},
+    {d:"S",t:"Nhẹ nhàng, hay hỏi thăm."},
+    {d:"C",t:"Đầy đủ, rõ ràng, đúng chính tả."}]},
+  {t:"Điều làm em khó chịu nhất?", opts:[
+    {d:"D",t:"Bị bắt làm theo ý người khác mãi."},
+    {d:"I",t:"Bị bỏ một mình, buồn chán."},
+    {d:"S",t:"Cãi nhau, ồn ào, thay đổi đột ngột."},
+    {d:"C",t:"Làm bừa, làm sai, lộn xộn."}]},
+  {t:"Cô hỏi điều em chưa chắc, em…", opts:[
+    {d:"D",t:"Mạnh dạn đoán và trả lời."},
+    {d:"I",t:"Cười, nói vui rồi đoán đại."},
+    {d:"S",t:"Ngập ngừng, sợ trả lời sai."},
+    {d:"C",t:"Suy nghĩ kỹ rồi mới trả lời."}]},
+  {t:"Trong buổi sinh hoạt lớp, em…", opts:[
+    {d:"D",t:"Đứng ra tổ chức, điều khiển."},
+    {d:"I",t:"Hát, diễn, làm trò vui."},
+    {d:"S",t:"Phụ chuẩn bị, dọn dẹp, hỗ trợ."},
+    {d:"C",t:"Lo kế hoạch, danh sách, đúng giờ."}]},
+  {t:"Em quyết định mua một món đồ chơi thế nào?", opts:[
+    {d:"D",t:"Thích là mua ngay."},
+    {d:"I",t:"Mua theo bạn bè, theo trào lưu."},
+    {d:"S",t:"Hỏi ý ba mẹ trước."},
+    {d:"C",t:"So sánh giá, chất lượng rồi mới mua."}]},
+  {t:"Tới hạn nộp bài, em…", opts:[
+    {d:"D",t:"Làm nhanh phần chính."},
+    {d:"I",t:"Hay làm phút chót, đôi khi thiếu."},
+    {d:"S",t:"Làm đều, nộp đúng hạn."},
+    {d:"C",t:"Làm sớm, kiểm tra kỹ."}]},
+  {t:"Em thích cô giao bài theo kiểu…", opts:[
+    {d:"D",t:"Cho mục tiêu, để em tự làm theo cách mình."},
+    {d:"I",t:"Bài vui, được làm nhóm, được khen."},
+    {d:"S",t:"Hướng dẫn rõ, có bạn cùng làm."},
+    {d:"C",t:"Đề rõ ràng, có hướng dẫn chi tiết."}]},
+  {t:"Khi bị bạn từ chối chơi cùng, em…", opts:[
+    {d:"D",t:"Tự đi tìm trò khác ngay."},
+    {d:"I",t:"Rủ bạn khác chơi."},
+    {d:"S",t:"Hơi buồn, lát sau làm lành."},
+    {d:"C",t:"Nghĩ xem vì sao bạn từ chối."}]},
+  {t:"Bạn nhờ giúp lúc em đang bận, em…", opts:[
+    {d:"D",t:"Nói thẳng đang bận, lát giúp."},
+    {d:"I",t:"Vui vẻ giúp, làm chung luôn."},
+    {d:"S",t:"Bỏ việc mình để giúp bạn."},
+    {d:"C",t:"Giúp sau khi xong việc của mình."}]},
+  {t:"Em chọn truyện hoặc phim theo…", opts:[
+    {d:"D",t:"Hành động, phiêu lưu, anh hùng."},
+    {d:"I",t:"Hài hước, vui nhộn, đông nhân vật."},
+    {d:"S",t:"Tình cảm, ấm áp, gia đình."},
+    {d:"C",t:"Trinh thám, khoa học, có logic."}]},
+  {t:"Trong giờ học, em thích…", opts:[
+    {d:"D",t:"Vào thẳng phần làm bài tập."},
+    {d:"I",t:"Có hoạt động, trò chơi, tương tác."},
+    {d:"S",t:"Không khí nhẹ nhàng, được hỗ trợ."},
+    {d:"C",t:"Cô giảng kỹ, có ghi chép đầy đủ."}]},
+  {t:"Khi cãi nhau với anh/chị/em, em…", opts:[
+    {d:"D",t:"Nói thẳng quan điểm, không nhịn."},
+    {d:"I",t:"Làm hòa nhanh bằng cách đùa."},
+    {d:"S",t:"Nhường cho yên chuyện."},
+    {d:"C",t:"Phân tích ai đúng ai sai."}]},
+  {t:"Câu nào \"giống em\" nhất?", opts:[
+    {d:"D",t:"\"Để tớ làm, tớ làm được!\""},
+    {d:"I",t:"\"Vui ghê, mình chơi tiếp đi!\""},
+    {d:"S",t:"\"Cậu cần gì tớ giúp cho.\""},
+    {d:"C",t:"\"Khoan, mình làm cho đúng đã.\""}]},
+  {t:"Lớn lên em mơ ước…", opts:[
+    {d:"D",t:"Làm thủ lĩnh, đứng đầu, dẫn dắt."},
+    {d:"I",t:"Nổi tiếng, được nhiều người yêu quý."},
+    {d:"S",t:"Công việc ổn định, giúp được người khác."},
+    {d:"C",t:"Trở thành chuyên gia giỏi, hiểu biết sâu."}]},
+  {t:"Khi có nhiều bài tập cùng lúc, em…", opts:[
+    {d:"D",t:"Lao vào làm hết thật nhanh."},
+    {d:"I",t:"Cần ai đó động viên cho có hứng."},
+    {d:"S",t:"Dễ căng thẳng, cần làm từ từ."},
+    {d:"C",t:"Lập kế hoạch, làm từng món một."}]},
 ];
 
 const INFO = {
   D:{animal:"🐯", name:"HỔ CON Thủ Lĩnh", color:"#FF6B5E", tag:"Mạnh mẽ · Quyết đoán · Thích dẫn đầu",
     desc:"Em là một bạn nhỏ dũng cảm và quyết đoán! Em thích dẫn đầu, thích thử thách và luôn muốn làm thật tốt. Khi em muốn điều gì, em sẽ cố hết sức để đạt được.",
     strong:["Dám nói lên ý kiến và bảo vệ điều mình tin","Làm nhóm trưởng giỏi, biết phân công","Không bỏ cuộc trước thử thách khó"],
-    grow:["Nhớ lắng nghe ý kiến của bạn trước khi quyết","Kiên nhẫn hơn một chút với bạn làm chậm","Đôi khi 'thua một trò chơi' cũng không sao cả 😊"],
+    grow:["Nhớ lắng nghe ý kiến của bạn trước khi quyết","Kiên nhẫn hơn một chút với bạn làm chậm","Đôi khi 'thua một trò chơi' cũng không sao 😊"],
     parent:["Giao cho con việc có <b>quyền tự quyết</b> và mục tiêu rõ ràng","Khen <b>kết quả và sự cố gắng</b> cụ thể của con","Tránh ra lệnh dồn dập — hãy cho con lựa chọn","Dạy con cách lắng nghe và hợp tác với bạn bè"]},
   I:{animal:"🐵", name:"KHỈ CON Vui Nhộn", color:"#FFB23E", tag:"Vui vẻ · Nhiều bạn · Thích chia sẻ",
     desc:"Em là một bạn nhỏ tươi vui và đầy năng lượng! Em có nhiều bạn, thích trò chuyện và làm mọi người xung quanh vui lây. Lớp học có em là rộn ràng hẳn lên!",
@@ -156,32 +305,30 @@ const INFO = {
     parent:["<b>Báo trước</b> cho con khi có thay đổi, đừng đột ngột","Tạo không khí <b>ổn định, an toàn</b> ở nhà","Khen con <b>nhẹ nhàng, riêng tư</b> (con ngại bị tung hô)","Khuyến khích con bày tỏ cảm xúc và ý kiến"]},
   C:{animal:"🦉", name:"CÚ MÈO Thông Thái", color:"#5B8DEF", tag:"Cẩn thận · Thông minh · Thích chính xác",
     desc:"Em là một bạn nhỏ cẩn thận và ham hiểu biết! Em làm việc gì cũng kỹ lưỡng, thích tìm hiểu sâu và luôn muốn làm cho thật đúng. Em là 'nhà thông thái' của lớp!",
-    strong:["Làm bài cẩn thận, ít sai sót","Thích tìm hiểu sâu, hỏi 'vì sao'","Gọn gàng, ngăn nắp, có kế hoạch"],
-    grow:["Đừng quá lo lắng nếu lỡ làm sai — sai để học mà 😊","Thử quyết định nhanh hơn đôi khi cũng tốt","Chơi và thư giãn nhiều hơn, đừng cầu toàn quá"],
+    strong:["Làm bài cẩn thận, ít sai sót","Thích tìm hiểu sâu, hay hỏi 'vì sao'","Gọn gàng, ngăn nắp, có kế hoạch"],
+    grow:["Đừng quá lo nếu lỡ làm sai — sai để học mà 😊","Thử quyết định nhanh hơn đôi khi cũng tốt","Chơi và thư giãn nhiều hơn, đừng cầu toàn quá"],
     parent:["Giải thích <b>lý do</b> rõ ràng khi yêu cầu con việc gì","Cho con <b>thời gian chuẩn bị</b>, đừng hối thúc gấp","Khen sự <b>chính xác và chỉn chu</b> của con","Trấn an con rằng phạm lỗi là chuyện bình thường"]},
 };
 const COLORHEX = {D:"#FF6B5E", I:"#FFB23E", S:"#4FBF74", C:"#5B8DEF"};
 const SHORT = {D:"🐯 Hổ con", I:"🐵 Khỉ con", S:"🐨 Gấu con", C:"🦉 Cú mèo"};
 
 const form=document.getElementById('quiz'), answers={};
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 QUESTIONS.forEach((q,i)=>{
   const div=document.createElement('div'); div.className='q'; div.id='q'+i;
-  const opts=SCALE.map(s=>`
-    <label data-q="${i}" data-v="${s.v}">
-      <input type="radio" name="q${i}" value="${s.v}">
-      <span class="em">${s.e}</span>${s.l}
-    </label>`).join('');
+  const opts=shuffle(q.opts).map(o=>`
+    <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
   div.innerHTML=`<div class="num">CÂU ${i+1} / 30</div>
-    <div class="text">${q.t}</div><div class="scale">${opts}</div>`;
+    <div class="text">${q.t}</div><div class="opts">${opts}</div>`;
   form.appendChild(div);
 });
 const pfill=document.getElementById('pfill'),ptxt=document.getElementById('ptxt'),
       submitBtn=document.getElementById('submitBtn'),warn=document.getElementById('warn');
 form.addEventListener('click',e=>{
-  const lab=e.target.closest('label'); if(!lab) return;
-  const qi=lab.dataset.q; answers[qi]=parseInt(lab.dataset.v);
-  lab.closest('.scale').querySelectorAll('label').forEach(l=>l.classList.remove('sel'));
-  lab.classList.add('sel'); document.getElementById('q'+qi).classList.add('answered');
+  const opt=e.target.closest('.opt'); if(!opt) return;
+  const qi=opt.dataset.q; answers[qi]=opt.dataset.d;
+  opt.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  opt.classList.add('sel'); document.getElementById('q'+qi).classList.add('answered');
   const n=Object.keys(answers).length;
   pfill.style.width=(n/30*100)+'%'; ptxt.textContent=n+' / 30 câu';
   submitBtn.disabled=n<30; if(n===30) warn.textContent='';
@@ -195,9 +342,10 @@ submitBtn.addEventListener('click',()=>{
   showResult();
 });
 function showResult(){
-  const score={D:0,I:0,S:0,C:0},count={D:0,I:0,S:0,C:0};
-  QUESTIONS.forEach((q,i)=>{score[q.d]+=answers[i];count[q.d]++;});
-  const pct={}; for(const k in score) pct[k]=Math.round(score[k]/(count[k]*5)*100);
+  const count={D:0,I:0,S:0,C:0};
+  Object.values(answers).forEach(d=>{ if(count[d]!==undefined) count[d]++; });
+  const total=QUESTIONS.length, pct={};
+  for(const k in count) pct[k]=Math.round(count[k]/total*100);
   const order=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
   const primary=order[0],secondary=order[1],info=INFO[primary];
   const bars=order.map(k=>`

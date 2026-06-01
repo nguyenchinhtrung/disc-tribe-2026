@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trắc nghiệm DISC — Dành cho người làm Bất động sản</title>
+<style>
+  :root{
+    --d:#E03B3B; --i:#F2A93B; --s:#3BA55C; --c:#3B7DE0;
+    --ink:#1d2433; --muted:#6b7280; --line:#e6e8ee; --bg:#f5f6fa;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:24px 18px 80px}
+  header.hero{background:linear-gradient(135deg,#1d2433,#2c3e66);color:#fff;border-radius:18px;
+    padding:30px 26px;margin-bottom:22px;box-shadow:0 10px 30px rgba(29,36,51,.18)}
+  header.hero h1{margin:0 0 6px;font-size:24px;letter-spacing:.2px}
+  header.hero p{margin:0;opacity:.86;font-size:15px}
+  .badge{display:inline-block;background:rgba(255,255,255,.15);padding:4px 11px;border-radius:999px;
+    font-size:12px;letter-spacing:.5px;margin-bottom:12px}
+  .intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+  .intro h2{margin:0 0 8px;font-size:16px}
+  .intro ol{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+  .intro li{margin-bottom:4px}
+  .progressbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 6px;margin-bottom:6px}
+  .progressbar .track{height:8px;background:#e3e6ef;border-radius:99px;overflow:hidden}
+  .progressbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--d),var(--i),var(--s),var(--c));transition:width .25s}
+  .progressbar .txt{font-size:12px;color:var(--muted);margin-top:5px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;
+    transition:border-color .2s,box-shadow .2s}
+  .q.answered{border-color:#cdd6e8}
+  .q .num{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+  .q .text{font-size:16px;margin:4px 0 14px;font-weight:500}
+  .opts{display:flex;flex-direction:column;gap:8px}
+  .opt{display:flex;align-items:flex-start;gap:11px;border:1.5px solid var(--line);border-radius:11px;
+    padding:11px 14px;cursor:pointer;font-size:14.5px;color:var(--ink);user-select:none;transition:.15s;background:#fafbfe;line-height:1.45}
+  .opt:hover{border-color:#aab6d6;background:#f1f5fd}
+  .opt .mk{flex:0 0 20px;width:20px;height:20px;border:2px solid #c3ccde;border-radius:50%;margin-top:1px;transition:.15s}
+  .opt.sel{background:#2c3e66;border-color:#2c3e66;color:#fff;font-weight:500}
+  .opt.sel .mk{background:#fff;border-color:#fff;box-shadow:inset 0 0 0 4px #2c3e66}
+  .cta{position:sticky;bottom:0;padding:14px 0 4px;background:linear-gradient(0deg,var(--bg) 70%,transparent)}
+  button.submit{width:100%;padding:15px;border:0;border-radius:13px;background:#2c3e66;color:#fff;font-size:16px;
+    font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(44,62,102,.3)}
+  button.submit:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .warn{color:var(--d);font-size:13px;text-align:center;margin-top:8px;min-height:18px}
+  /* result */
+  #result{display:none}
+  .res-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;margin-bottom:16px}
+  .res-head{text-align:center;margin-bottom:8px}
+  .res-head .big{font-size:54px;font-weight:800;line-height:1}
+  .res-head .label{font-size:20px;font-weight:700;margin-top:6px}
+  .res-head .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .bars{margin:22px 0 6px}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+  .bar-row .k{width:150px;font-size:13px;font-weight:600}
+  .bar-row .track{flex:1;height:16px;background:#eef0f6;border-radius:99px;overflow:hidden}
+  .bar-row .fill{height:100%;border-radius:99px;transition:width .8s ease}
+  .bar-row .pct{width:42px;text-align:right;font-size:13px;color:var(--muted);font-weight:600}
+  .section h3{font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+  .section ul{margin:6px 0 0;padding-left:20px}
+  .section li{margin-bottom:5px;font-size:14.5px}
+  .pill{display:inline-block;width:12px;height:12px;border-radius:4px}
+  .note{background:#fafbfe;border:1px dashed var(--line);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+  .retry{display:block;width:100%;text-align:center;padding:13px;border:1px solid var(--line);border-radius:12px;
+    background:#fff;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+  /* cổng mã lớp */
+  .gate{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1d2433,#2c3e66);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .gate.hidden{display:none}
+  .gate .box{background:#fff;border-radius:18px;padding:30px 26px;max-width:360px;width:100%;
+    text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .gate .box .lock{font-size:34px}
+  .gate .box h2{margin:6px 0 6px;font-size:20px;color:#1d2433}
+  .gate .box p{margin:0 0 18px;color:#6b7280;font-size:14px}
+  .gate input{width:100%;padding:13px;border:1.5px solid #e6e8ee;border-radius:11px;font-size:16px;
+    text-align:center;letter-spacing:1px;margin-bottom:10px}
+  .gate input:focus{outline:none;border-color:#2c3e66}
+  .gate button{width:100%;padding:13px;border:0;border-radius:11px;background:#2c3e66;color:#fff;
+    font-size:16px;font-weight:600;cursor:pointer}
+  .gate .err{color:#E03B3B;font-size:13px;min-height:18px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="lock">🔒</div>
+    <h2>Trắc nghiệm DISC</h2>
+    <p>Nhập <b>mã lớp</b> do giảng viên cung cấp để bắt đầu.</p>
+    <input id="gateInput" type="text" placeholder="Mã lớp" autocomplete="off">
+    <button id="gateBtn">Vào làm bài</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+</div>
+<script>
+  // ====== MÃ LỚP — đổi tại đây ======
+  const ACCESS_CODE = "DISC2026";
+  (function(){
+    const gate=document.getElementById('gate'), inp=document.getElementById('gateInput'),
+          btn=document.getElementById('gateBtn'), err=document.getElementById('gateErr');
+    if(sessionStorage.getItem('disc_ok')==='1') gate.classList.add('hidden');
+    function unlock(){
+      if(inp.value.trim().toUpperCase()===ACCESS_CODE.toUpperCase()){
+        sessionStorage.setItem('disc_ok','1'); gate.classList.add('hidden');
+      } else { err.textContent='Mã chưa đúng, thử lại nhé.'; inp.select(); }
+    }
+    btn.addEventListener('click',unlock);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') unlock(); });
+    setTimeout(()=>inp.focus(),100);
+  })();
+</script>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">TRẮC NGHIỆM TÍNH CÁCH DISC</span>
+    <h1>Bạn là kiểu môi giới — và kiểu người quản lý nào?</h1>
+    <p>30 tình huống · khoảng 6 phút · dành cho người đang làm Bất động sản</p>
+  </header>
+
+  <div class="intro" id="introBox">
+    <h2>Cách làm</h2>
+    <ol>
+      <li>Mỗi câu là một <b>tình huống thực tế</b> trong nghề. Chọn đáp án <b>giống bạn nhất</b> — phản ứng theo bản năng, đừng cân nhắc lâu.</li>
+      <li>Không có đáp án đúng/sai. Hãy chọn con người thật của bạn, không phải con người bạn "nên là".</li>
+      <li>Làm hết 30 tình huống rồi bấm <b>Xem kết quả</b> để nhận phân tích chi tiết theo nghề BĐS.</li>
+    </ol>
+  </div>
+
+  <div class="progressbar" id="pbar">
+    <div class="track"><div class="fill" id="pfill"></div></div>
+    <div class="txt" id="ptxt">0 / 30 câu</div>
+  </div>
+
+  <form id="quiz"></form>
+
+  <div class="cta">
+    <button class="submit" id="submitBtn" disabled>Xem kết quả</button>
+    <div class="warn" id="warn"></div>
+  </div>
+
+  <div id="result"></div>
+
+  <div class="foot">Công cụ huấn luyện nội bộ · Thiết kế theo mô hình DISC ứng dụng cho quản lý đội sales BĐS</div>
+</div>
+
+<script>
+// Mỗi tình huống có 4 đáp án ứng với D/I/S/C. Thứ tự đáp án sẽ được xáo trộn khi hiển thị.
+const QUESTIONS = [
+  {t:"Khách hẹn xem nhà mẫu lần đầu — bạn mở đầu thế nào?", opts:[
+    {d:"D",t:"Hỏi thẳng nhu cầu và ngân sách, đưa ngay căn phù hợp nhất."},
+    {d:"I",t:"Bắt chuyện vui vẻ, tạo thiện cảm, kể chuyện cộng đồng cư dân."},
+    {d:"S",t:"Từ tốn hỏi nhu cầu của gia đình, lắng nghe mong muốn của khách."},
+    {d:"C",t:"Trình bày bài bản pháp lý, vị trí, số liệu dự án."}]},
+  {t:"Quản lý giao chỉ tiêu tháng cao hơn bình thường — phản ứng đầu tiên của bạn?", opts:[
+    {d:"D",t:"\"Ngon, càng cao càng máu\" — coi là một thử thách."},
+    {d:"I",t:"Rủ đồng đội cùng hô quyết tâm cho khí thế."},
+    {d:"S",t:"Hơi lo nhưng vẫn nhận, âm thầm lên kế hoạch làm đều."},
+    {d:"C",t:"Hỏi rõ cơ sở chỉ tiêu, cách tính và nguồn khách hỗ trợ."}]},
+  {t:"Khách đang lưỡng lự chưa chốt — bạn làm gì?", opts:[
+    {d:"D",t:"Tạo áp lực nhẹ: \"căn đẹp sắp hết, anh quyết sớm kẻo lỡ\"."},
+    {d:"I",t:"Kể chuyện khách khác đã mua và hài lòng, khơi cảm xúc."},
+    {d:"S",t:"Kiên nhẫn cho khách thời gian, hẹn chăm sóc tiếp."},
+    {d:"C",t:"Đưa thêm số liệu, bảng so sánh để khách yên tâm."}]},
+  {t:"Trong cuộc họp đội, bạn thường là người…", opts:[
+    {d:"D",t:"Phát biểu thẳng, đẩy nhanh tới quyết định."},
+    {d:"I",t:"Khuấy động không khí, kết nối mọi người."},
+    {d:"S",t:"Lắng nghe, ủng hộ, ít khi tranh luận."},
+    {d:"C",t:"Đặt câu hỏi chi tiết, soi kỹ số liệu và kế hoạch."}]},
+  {t:"Bàn làm việc của bạn trông thế nào?", opts:[
+    {d:"D",t:"Gọn, ít đồ, chỉ thứ cần cho công việc."},
+    {d:"I",t:"Hơi bừa, nhiều đồ cá nhân, ảnh, sticker vui."},
+    {d:"S",t:"Ấm cúng, có ảnh gia đình, đồ vật quen thuộc."},
+    {d:"C",t:"Ngăn nắp, tài liệu phân loại rõ ràng."}]},
+  {t:"Bạn đăng gì nhiều nhất trên mạng xã hội?", opts:[
+    {d:"D",t:"Thành tích chốt deal, mục tiêu, câu nói động lực."},
+    {d:"I",t:"Selfie, sự kiện, khoảnh khắc vui cùng mọi người."},
+    {d:"S",t:"Gia đình, lời chúc, lời động viên người khác."},
+    {d:"C",t:"Phân tích thị trường, tin pháp lý, biểu đồ."}]},
+  {t:"Công ty đổi chính sách hoa hồng đột ngột — bạn…", opts:[
+    {d:"D",t:"Hỏi thẳng: \"chính sách mới có giúp tôi kiếm nhiều hơn không?\""},
+    {d:"I",t:"Bàn tán sôi nổi với đồng đội xem ảnh hưởng vui buồn."},
+    {d:"S",t:"Thấy hơi hụt hẫng, cần thời gian để quen dần."},
+    {d:"C",t:"Yêu cầu văn bản chi tiết, tính lại từng trường hợp."}]},
+  {t:"Khách phàn nàn gay gắt về tiến độ dự án — bạn…", opts:[
+    {d:"D",t:"Đối diện thẳng, giải quyết dứt điểm, cam kết mốc thời gian."},
+    {d:"I",t:"Xoa dịu bằng sự nhiệt tình, giữ quan hệ tốt."},
+    {d:"S",t:"Lắng nghe kiên nhẫn, trấn an và đồng hành với khách."},
+    {d:"C",t:"Đưa thông tin chính xác về tiến độ, có văn bản chứng minh."}]},
+  {t:"Bạn thích được sếp khen kiểu nào?", opts:[
+    {d:"D",t:"Công nhận bạn là người số 1, vừa lập kỷ lục."},
+    {d:"I",t:"Tuyên dương trước cả phòng thật rôm rả."},
+    {d:"S",t:"Một lời cảm ơn chân thành, riêng tư."},
+    {d:"C",t:"Ghi nhận sự chính xác, chỉn chu trong công việc."}]},
+  {t:"Cuối tuần rảnh, bạn thiên về…", opts:[
+    {d:"D",t:"Làm thêm việc, chinh phục mục tiêu cá nhân."},
+    {d:"I",t:"Tụ tập bạn bè, đi chơi đông vui."},
+    {d:"S",t:"Ở nhà với gia đình, nghỉ ngơi nhẹ nhàng."},
+    {d:"C",t:"Đọc, tìm hiểu, sắp xếp kế hoạch cho tuần tới."}]},
+  {t:"Khi học một dự án mới, bạn nắm nhanh nhất bằng cách…", opts:[
+    {d:"D",t:"Nghe tóm tắt nhanh các điểm bán hàng chính rồi đi làm."},
+    {d:"I",t:"Nghe người khác kể, trao đổi sôi nổi."},
+    {d:"S",t:"Được hướng dẫn từ từ, có người đồng hành."},
+    {d:"C",t:"Tự đọc kỹ tài liệu, pháp lý, bảng giá chi tiết."}]},
+  {t:"Một đồng đội mắc lỗi ảnh hưởng tới bạn — bạn…", opts:[
+    {d:"D",t:"Nói thẳng luôn, rõ ràng, để lần sau không lặp lại."},
+    {d:"I",t:"Nói khéo, giữ hoà khí, cười xòa cho qua."},
+    {d:"S",t:"Bỏ qua, ngại làm căng, tự gánh phần thiệt."},
+    {d:"C",t:"Phân tích nguyên nhân, đề xuất quy trình tránh lỗi."}]},
+  {t:"Bạn chọn khách để tập trung chăm theo tiêu chí…", opts:[
+    {d:"D",t:"Khách quyết nhanh, tiềm năng chốt lớn."},
+    {d:"I",t:"Khách hợp gu, nói chuyện vui, dễ kết nối."},
+    {d:"S",t:"Khách cần chăm lâu dài, mình hiểu rõ."},
+    {d:"C",t:"Khách nghiêm túc, nhu cầu thật, hồ sơ rõ ràng."}]},
+  {t:"Phong cách ăn mặc đi làm của bạn…", opts:[
+    {d:"D",t:"Mạnh mẽ, đẳng cấp, thể hiện sự thành công."},
+    {d:"I",t:"Nổi bật, hợp mốt, nhiều màu sắc."},
+    {d:"S",t:"Giản dị, lịch sự, thoải mái."},
+    {d:"C",t:"Chỉn chu, kín đáo, đúng mực."}]},
+  {t:"Khi chốt được một deal lớn, bạn…", opts:[
+    {d:"D",t:"Đặt ngay mục tiêu lớn hơn cho deal kế tiếp."},
+    {d:"I",t:"Khoe ngay và ăn mừng cùng cả đội."},
+    {d:"S",t:"Vui thầm, cảm ơn khách đã tin tưởng."},
+    {d:"C",t:"Rà lại hồ sơ, đảm bảo mọi thứ chuẩn, không sai sót."}]},
+  {t:"Tin nhắn của bạn trong nhóm chat công ty thường…", opts:[
+    {d:"D",t:"Ngắn gọn, đi thẳng việc, ít emoji."},
+    {d:"I",t:"Nhiều, vui, nhiều emoji và icon."},
+    {d:"S",t:"Nhẹ nhàng, lịch sự, hay động viên người khác."},
+    {d:"C",t:"Đầy đủ thông tin, rõ ràng, kèm số liệu/đường dẫn."}]},
+  {t:"Điều khiến bạn khó chịu nhất ở nơi làm việc?", opts:[
+    {d:"D",t:"Bị quản lý từng li từng tí, mọi thứ lề mề."},
+    {d:"I",t:"Không khí buồn tẻ, bị phớt lờ."},
+    {d:"S",t:"Mâu thuẫn, thay đổi liên tục, bị thúc gấp."},
+    {d:"C",t:"Làm việc cẩu thả, thiếu quy trình, sai số liệu."}]},
+  {t:"Khách hỏi một điều bạn chưa chắc chắn — bạn…", opts:[
+    {d:"D",t:"Tự tin đưa hướng, cam kết kiểm tra lại sau."},
+    {d:"I",t:"Khéo léo lái sang điểm mạnh, giữ không khí vui."},
+    {d:"S",t:"Thành thật nói sẽ hỏi lại cho chắc rồi báo khách."},
+    {d:"C",t:"Dừng lại, tra cứu kỹ rồi mới trả lời chính xác."}]},
+  {t:"Cả đội đi sự kiện mở bán, bạn là người…", opts:[
+    {d:"D",t:"Tập trung tìm khách tiềm năng để chốt."},
+    {d:"I",t:"Giao lưu, kết nối, làm quen thật nhiều người."},
+    {d:"S",t:"Hỗ trợ hậu cần, chăm sóc khách chu đáo."},
+    {d:"C",t:"Chuẩn bị tài liệu, nắm thông tin dự án để tư vấn chuẩn."}]},
+  {t:"Bạn ra quyết định mua/đầu tư cho bản thân thế nào?", opts:[
+    {d:"D",t:"Quyết nhanh khi thấy cơ hội tốt."},
+    {d:"I",t:"Nghe theo cảm giác và lời khuyên bạn bè."},
+    {d:"S",t:"Cân nhắc kỹ, hỏi ý người thân, không vội."},
+    {d:"C",t:"Phân tích số liệu, so sánh, tính rủi ro rồi mới quyết."}]},
+  {t:"Tới hạn nộp báo cáo, bạn thường…", opts:[
+    {d:"D",t:"Làm nhanh phần cốt lõi, kết quả là chính."},
+    {d:"I",t:"Hay nước rút phút chót, đôi khi thiếu chi tiết."},
+    {d:"S",t:"Làm đều đặn, đúng hạn, không thích gấp gáp."},
+    {d:"C",t:"Làm sớm, kiểm tra kỹ, đầy đủ số liệu."}]},
+  {t:"Bạn muốn được giao việc theo kiểu…", opts:[
+    {d:"D",t:"Cho mục tiêu và toàn quyền cách làm."},
+    {d:"I",t:"Việc có tương tác, được thể hiện, được công nhận."},
+    {d:"S",t:"Hướng dẫn rõ ràng, ổn định, có người hỗ trợ."},
+    {d:"C",t:"Tiêu chuẩn rõ, quy trình cụ thể, đủ dữ liệu."}]},
+  {t:"Khi bị một khách từ chối, bạn…", opts:[
+    {d:"D",t:"Bỏ qua nhanh, \"next\" sang khách tiếp theo."},
+    {d:"I",t:"Hơi buồn nhưng nhanh vui lại nhờ khách khác."},
+    {d:"S",t:"Suy nghĩ, tự dặn chăm khách tốt hơn lần sau."},
+    {d:"C",t:"Phân tích vì sao trượt để rút kinh nghiệm."}]},
+  {t:"Đồng nghiệp nhờ giúp lúc bạn đang bận — bạn…", opts:[
+    {d:"D",t:"Nói thẳng đang bận, hẹn lúc khác."},
+    {d:"I",t:"Vui vẻ giúp nếu thấy vui, hoặc rủ làm chung."},
+    {d:"S",t:"Gác việc mình để giúp, ngại từ chối."},
+    {d:"C",t:"Giúp nếu hợp lý, nhưng giữ đúng thứ tự ưu tiên."}]},
+  {t:"Bạn đánh giá một dự án để bán chủ yếu dựa vào…", opts:[
+    {d:"D",t:"Tiềm năng lời, thanh khoản, chốt nhanh."},
+    {d:"I",t:"Câu chuyện hấp dẫn, hình ảnh, độ \"hot\"."},
+    {d:"S",t:"Uy tín chủ đầu tư, sự an toàn cho khách."},
+    {d:"C",t:"Pháp lý, dòng tiền, dữ liệu quy hoạch."}]},
+  {t:"Trong một buổi đào tạo, bạn thích…", opts:[
+    {d:"D",t:"Đi nhanh vào phần áp dụng ra kết quả."},
+    {d:"I",t:"Có hoạt động, tương tác, vui nhộn."},
+    {d:"S",t:"Không khí thoải mái, được hỗ trợ từng bước."},
+    {d:"C",t:"Nội dung bài bản, có tài liệu, số liệu rõ ràng."}]},
+  {t:"Khi mâu thuẫn với đồng đội, bạn…", opts:[
+    {d:"D",t:"Nói thẳng vấn đề, giải quyết ngay."},
+    {d:"I",t:"Làm lành bằng sự vui vẻ, rủ đi cà phê."},
+    {d:"S",t:"Nhường nhịn, tránh căng thẳng."},
+    {d:"C",t:"Dựa trên dữ kiện đúng-sai để phân định."}]},
+  {t:"Câu nói nào \"giống bạn\" nhất khi tư vấn khách?", opts:[
+    {d:"D",t:"\"Căn này lời nhất, anh chốt là thắng.\""},
+    {d:"I",t:"\"Anh sẽ mê cộng đồng cư dân ở đây cho xem!\""},
+    {d:"S",t:"\"Anh chị cứ từ từ, em hỗ trợ tới cùng.\""},
+    {d:"C",t:"\"Em gửi anh đầy đủ pháp lý và dòng tiền để anh yên tâm.\""}]},
+  {t:"Mục tiêu nghề nghiệp của bạn nghiêng về…", opts:[
+    {d:"D",t:"Trở thành top sale, dẫn đầu, lên làm quản lý."},
+    {d:"I",t:"Được nhiều người biết đến, có thương hiệu cá nhân."},
+    {d:"S",t:"Công việc ổn định, đội nhóm gắn bó lâu dài."},
+    {d:"C",t:"Trở thành chuyên gia am hiểu sâu sản phẩm/thị trường."}]},
+  {t:"Khi áp lực doanh số lên cao, bạn…", opts:[
+    {d:"D",t:"Càng máu, lao vào chiến nhiều hơn."},
+    {d:"I",t:"Cần được động viên, khích lệ tinh thần."},
+    {d:"S",t:"Dễ căng thẳng, cần môi trường ổn định để giữ phong độ."},
+    {d:"C",t:"Lập kế hoạch chi tiết, kiểm soát từng bước."}]},
+];
+
+const INFO = {
+  D:{name:"D — Người Thủ Lĩnh", color:"var(--d)", tag:"Quyết đoán · Kết quả · Cạnh tranh",
+    nick:"\"Sát thủ chốt căn\"",
+    desc:"Bạn hướng tới kết quả, tốc độ và chiến thắng. Trong nghề phân phối dự án, bạn là người dám ôm giỏ hàng lớn, dám gọi khách khó, dám chốt cọc ngay tại lễ mở bán khi người khác còn do dự.",
+    strong:["Chốt căn/cọc nhanh, không sợ bị từ chối","Dẫn dắt và truyền lửa khi đội bế tắc","Dám nhận chỉ tiêu cao, thích lập kỷ lục doanh số"],
+    watch:["Dễ nóng vội, bỏ qua chi tiết pháp lý/hồ sơ","Có thể lấn át đồng đội kiểu I/S nhẹ tính","Mất kiên nhẫn với khách cần được chăm từ từ"],
+    manage:["Giao việc bằng MỤC TIÊU và quyền tự chủ, đừng quản từng bước","Ghi nhận chiến thắng cụ thể, công khai con số","Thách thức họ bằng kỷ lục mới — họ sống nhờ cạnh tranh","Khi góp ý: thẳng, ngắn, đi vào kết quả"]},
+  I:{name:"I — Người Truyền Cảm Hứng", color:"var(--i)", tag:"Quan hệ · Nhiệt huyết · Thuyết phục",
+    nick:"\"Ngôi sao quan hệ\"",
+    desc:"Bạn thắng bằng quan hệ và cảm xúc. Trong nghề phân phối dự án, bạn là người khách quý mến, mạnh kênh giới thiệu, và làm lễ mở bán sôi động hẳn lên.",
+    strong:["Tạo thiện cảm và niềm tin với khách rất nhanh","Bán bằng câu chuyện, cảm xúc, trải nghiệm dự án","Lan toả năng lượng tích cực cho cả đội"],
+    watch:["Hay quên quy trình, hồ sơ booking, chăm khách sau bán","Dễ hứa quá lời với khách vì lạc quan","Cần được công nhận, dễ hụt hơi khi bị phớt lờ"],
+    manage:["Cho sân khấu: vinh danh, khen công khai, gắn huy hiệu","Hỗ trợ phần kỷ luật & giấy tờ bằng bảng việc cần làm/trợ lý","Giữ không khí vui — đừng dìm năng lượng của họ","Khi góp ý: khen trước, góp sau, giữ thể diện"]},
+  S:{name:"S — Người Đồng Hành", color:"var(--s)", tag:"Bền bỉ · Trung thành · Ổn định",
+    nick:"\"Người chăm khách bền bỉ\"",
+    desc:"Bạn đáng tin và kiên trì. Trong nghề phân phối dự án, bạn là người chăm khách sau booking tốt nhất, theo sát lộ trình thanh toán, được khách ở thực và đồng đội tin tưởng lâu dài.",
+    strong:["Chăm khách sau bán, khách tái đầu tư & giới thiệu cực tốt","Trung thành, ổn định, ít nhảy việc","Là chất keo gắn kết, sẵn sàng hỗ trợ đồng đội"],
+    watch:["Ngại thay đổi và áp lực đột ngột","Ngại xung đột nên đôi khi không dám đòi quyền lợi/chốt mạnh","Cần thời gian để bứt tốc, không thích bị thúc gấp"],
+    manage:["Báo trước thay đổi chính sách, giải thích vì sao — đừng ép gấp","Tạo môi trường ổn định, an toàn, ít thị phi","Ghi nhận riêng tư, chân thành (họ ngại bị tung hô)","Giao khách ở thực cần chăm dài hạn, chăm sóc sau bán"]},
+  C:{name:"C — Người Chuẩn Mực", color:"var(--c)", tag:"Chính xác · Dữ liệu · Quy trình",
+    nick:"\"Chuyên gia pháp lý dự án\"",
+    desc:"Bạn làm chuẩn và chắc. Trong nghề phân phối dự án, bạn là người khách yên tâm về pháp lý, chính sách bán hàng, dòng tiền/lợi nhuận — bán bằng sự đáng tin và chính xác.",
+    strong:["Nắm chắc pháp lý, chính sách bán hàng, lộ trình thanh toán","Chuẩn bị kỹ, ít sai sót, giữ uy tín lâu dài","Phân tích dòng tiền/ROI, thuyết phục khách đầu tư lý trí"],
+    watch:["Chốt chậm vì cầu toàn, sợ rủi ro","Ít biểu lộ cảm xúc, dễ bị xem là khô khan","Khó chịu khi bị ép làm nhanh, làm ẩu"],
+    manage:["Cho dữ liệu, tiêu chuẩn và quy trình rõ ràng","Đừng ép bằng cảm xúc — thuyết phục bằng lý lẽ","Cho thời gian chuẩn bị, báo trước yêu cầu","Ghi nhận sự chính xác và chất lượng, không chỉ số lượng"]},
+};
+
+const COLORHEX = {D:"#E03B3B", I:"#F2A93B", S:"#3BA55C", C:"#3B7DE0"};
+
+const form = document.getElementById('quiz');
+const answers = {};
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+QUESTIONS.forEach((q,i)=>{
+  const div = document.createElement('div');
+  div.className='q'; div.id='q'+i;
+  const opts = shuffle(q.opts).map(o=>`
+    <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
+  div.innerHTML = `<div class="num">TÌNH HUỐNG ${i+1}/30</div>
+    <div class="text">${q.t}</div>
+    <div class="opts">${opts}</div>`;
+  form.appendChild(div);
+});
+
+const pfill=document.getElementById('pfill'), ptxt=document.getElementById('ptxt'),
+      submitBtn=document.getElementById('submitBtn'), warn=document.getElementById('warn');
+
+form.addEventListener('click', e=>{
+  const opt = e.target.closest('.opt');
+  if(!opt) return;
+  const qi = opt.dataset.q;
+  answers[qi] = opt.dataset.d;
+  // visual select
+  opt.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+  opt.classList.add('sel');
+  document.getElementById('q'+qi).classList.add('answered');
+  updateProgress();
+});
+
+function updateProgress(){
+  const n = Object.keys(answers).length;
+  pfill.style.width = (n/30*100)+'%';
+  ptxt.textContent = n+' / 30 câu';
+  submitBtn.disabled = n<30;
+  if(n===30) warn.textContent='';
+}
+
+submitBtn.addEventListener('click', ()=>{
+  if(Object.keys(answers).length<30){
+    const miss=[];
+    for(let i=0;i<30;i++) if(!(i in answers)) miss.push(i+1);
+    warn.textContent='Bạn còn thiếu câu: '+miss.slice(0,10).join(', ')+(miss.length>10?'...':'');
+    document.getElementById('q'+(miss[0]-1)).scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  showResult();
+});
+
+function showResult(){
+  const count={D:0,I:0,S:0,C:0};
+  Object.values(answers).forEach(d=>{ if(count[d]!==undefined) count[d]++; });
+  const total=QUESTIONS.length;
+  // tỉ lệ lựa chọn mỗi nhóm
+  const pct={};
+  for(const k in count){ pct[k]=Math.round(count[k]/total*100); }
+  const order = Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
+  const primary=order[0], secondary=order[1];
+
+  const info=INFO[primary];
+  const barsHtml = order.map(k=>`
+    <div class="bar-row">
+      <div class="k"><span class="pill" style="background:${COLORHEX[k]}"></span> ${INFO[k].name.split('—')[0].trim()} — ${k}</div>
+      <div class="track"><div class="fill" style="background:${COLORHEX[k]};width:0" data-w="${pct[k]}"></div></div>
+      <div class="pct">${pct[k]}%</div>
+    </div>`).join('');
+
+  const html = `
+  <div class="res-card">
+    <div class="res-head">
+      <div class="big" style="color:${info.color}">${primary}</div>
+      <div class="label">${info.name}</div>
+      <div class="sub">${info.tag} · ${info.nick}</div>
+      <div class="sub" style="margin-top:8px">Nhóm phụ của bạn: <b>${secondary}</b> — ${INFO[secondary].name.split('—')[1].split('(')[0].trim()}</div>
+    </div>
+    <div class="bars">${barsHtml}</div>
+
+    <div class="section">
+      <p style="font-size:15px">${info.desc}</p>
+      <h3><span class="pill" style="background:${info.color}"></span> Điểm mạnh của bạn trong nghề BĐS</h3>
+      <ul>${info.strong.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <h3>⚠️ Điểm cần lưu ý</h3>
+      <ul>${info.watch.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <h3>🎯 Khi BẠN quản lý người khác (và khi sếp quản lý bạn)</h3>
+      <ul>${info.manage.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <div class="note">
+        <b>Lưu ý quan trọng:</b> Không ai thuần 100% một nhóm. Bạn là sự pha trộn <b>${primary}</b> (chính) và <b>${secondary}</b> (phụ).
+        DISC mô tả <i>phong cách hành vi</i>, không phải năng lực hay giá trị con người — không có nhóm nào "tốt" hay "xấu" hơn.
+        Mục đích: hiểu mình để dẫn dắt người khác đúng cách.
+      </div>
+    </div>
+    <button class="retry" onclick="location.reload()">↻ Làm lại bài test</button>
+  </div>`;
+
+  const res=document.getElementById('result');
+  res.innerHTML=html; res.style.display='block';
+  document.getElementById('quiz').style.display='none';
+  document.querySelector('.cta').style.display='none';
+  document.getElementById('pbar').style.display='none';
+  document.getElementById('introBox').style.display='none';
+  res.scrollIntoView({behavior:'smooth'});
+  setTimeout(()=>{ res.querySelectorAll('.bar-row .fill').forEach(f=>f.style.width=f.dataset.w+'%'); },120);
+}
+</script>
+</body>
+</html>

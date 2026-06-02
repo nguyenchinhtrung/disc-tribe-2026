@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trắc nghiệm DISC — Chuyên viên môi giới BĐS</title>
+<style>
+  :root{
+    --d:#E03B3B; --i:#F2A93B; --s:#3BA55C; --c:#3B7DE0;
+    --ink:#1d2433; --muted:#6b7280; --line:#e6e8ee; --bg:#f5f6fa; --card:#ffffff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink);line-height:1.55;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:780px;margin:0 auto;padding:24px 18px 80px}
+  header.hero{background:linear-gradient(135deg,#1d2433,#3a2c66);color:#fff;border-radius:18px;
+    padding:30px 26px;margin-bottom:22px;box-shadow:0 10px 30px rgba(29,36,51,.18)}
+  header.hero h1{margin:0 0 6px;font-size:24px;letter-spacing:.2px}
+  header.hero p{margin:0;opacity:.86;font-size:15px}
+  .badge{display:inline-block;background:rgba(255,255,255,.15);padding:4px 11px;border-radius:999px;
+    font-size:12px;letter-spacing:.5px;margin-bottom:12px}
+  .intro{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:18px}
+  .intro h2{margin:0 0 8px;font-size:16px}
+  .intro ol{margin:8px 0 0;padding-left:20px;color:var(--muted);font-size:14px}
+  .intro li{margin-bottom:4px}
+  .progressbar{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0 6px;margin-bottom:6px}
+  .progressbar .track{height:8px;background:#e3e6ef;border-radius:99px;overflow:hidden}
+  .progressbar .fill{height:100%;width:0;background:linear-gradient(90deg,var(--d),var(--i),var(--s),var(--c));transition:width .25s}
+  .progressbar .txt{font-size:12px;color:var(--muted);margin-top:5px}
+  .q{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:12px;transition:border-color .2s}
+  .q.answered{border-color:#cdd6e8}
+  .q .num{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.4px}
+  .q .text{font-size:16px;margin:4px 0 14px;font-weight:500}
+  .opts{display:flex;flex-direction:column;gap:8px}
+  .opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:11px;
+    padding:8px 10px 8px 14px;font-size:14px;color:var(--ink);background:#fafbfe;transition:.15s;line-height:1.4}
+  .opt .otext{flex:1}
+  .opt.is-most{border-color:#2e9c5a;background:#eafaf1}
+  .opt.is-least{border-color:#c0392b;background:#fdeeea}
+  .ticks{display:flex;gap:6px;flex:0 0 auto}
+  .tk{border:1.5px solid #cdd4e2;background:#fff;border-radius:9px;padding:6px 8px;font-size:11px;font-weight:700;
+    cursor:pointer;color:#8a93a6;min-width:48px;text-align:center;user-select:none;line-height:1.15}
+  .tk.most.on{background:#2e9c5a;border-color:#2e9c5a;color:#fff}
+  .tk.least.on{background:#c0392b;border-color:#c0392b;color:#fff}
+  .cta{position:sticky;bottom:0;padding:14px 0 4px;background:linear-gradient(0deg,var(--bg) 70%,transparent)}
+  button.submit{width:100%;padding:15px;border:0;border-radius:13px;background:#2c3e66;color:#fff;font-size:16px;
+    font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(44,62,102,.3)}
+  button.submit:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+  .warn{color:var(--d);font-size:13px;text-align:center;margin-top:8px;min-height:18px}
+  #result{display:none}
+  .res-card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;margin-bottom:16px}
+  .res-head{text-align:center;margin-bottom:8px}
+  .res-head .big{font-size:54px;font-weight:800;line-height:1}
+  .res-head .label{font-size:20px;font-weight:700;margin-top:6px}
+  .res-head .sub{color:var(--muted);font-size:14px;margin-top:4px}
+  .bars{margin:22px 0 6px}
+  .bar-row{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+  .bar-row .k{width:160px;font-size:13px;font-weight:600}
+  .bar-row .track{flex:1;height:16px;background:#eef0f6;border-radius:99px;overflow:hidden}
+  .bar-row .fill{height:100%;border-radius:99px;transition:width .8s ease}
+  .bar-row .pct{width:42px;text-align:right;font-size:13px;color:var(--muted);font-weight:600}
+  .topic-head{margin:24px 0 12px;padding:9px 15px;background:#2c3e66;color:#fff;border-radius:11px;font-size:15.5px;font-weight:700;letter-spacing:.2px}
+  .topic-head:first-child{margin-top:2px}
+  .topic-head .ct{font-weight:400;opacity:.82;font-size:12.5px}
+  .radar{display:flex;justify-content:center;margin:16px 0 4px}
+  .radar svg{max-width:320px;width:100%;height:auto}
+  .radar-cap{text-align:center;font-size:12.5px;color:var(--muted);margin-top:4px}
+  .section h3{font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
+  .section ul{margin:6px 0 0;padding-left:20px}
+  .section li{margin-bottom:5px;font-size:14.5px}
+  .pill{display:inline-block;width:12px;height:12px;border-radius:4px}
+  .note{background:#fafbfe;border:1px dashed var(--line);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);margin-top:14px}
+  .retry{display:block;width:100%;text-align:center;padding:13px;border:1px solid var(--line);border-radius:12px;
+    background:#fff;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
+  .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+  /* cổng mật khẩu */
+  .gate{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1d2433,#2c3e66);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .gate.hidden{display:none}
+  .gate .box{background:#fff;border-radius:18px;padding:30px 26px;max-width:360px;width:100%;
+    text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .gate .box .lock{font-size:34px}
+  .gate .box h2{margin:6px 0 6px;font-size:20px;color:#1d2433}
+  .gate .box p{margin:0 0 18px;color:#6b7280;font-size:14px}
+  .gate input{width:100%;padding:13px;border:1.5px solid #e6e8ee;border-radius:11px;font-size:16px;
+    text-align:center;letter-spacing:1px;margin-bottom:10px}
+  .gate input:focus{outline:none;border-color:#2c3e66}
+  .gate button{width:100%;padding:13px;border:0;border-radius:11px;background:#2c3e66;color:#fff;
+    font-size:16px;font-weight:600;cursor:pointer}
+  .gate .err{color:#E03B3B;font-size:13px;min-height:18px;margin-top:8px}
+</style>
+</head>
+<body>
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="lock">🔒</div>
+    <h2>Trắc nghiệm DISC</h2>
+    <p>Nhập <b>mật khẩu</b> do người tổ chức cung cấp để bắt đầu.</p>
+    <input id="gateInput" type="text" placeholder="Mật khẩu" autocomplete="off">
+    <button id="gateBtn">Vào làm bài</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+</div>
+<script>
+  // ====== MẬT KHẨU — đổi tại đây ======
+  const ACCESS_CODE = "MOIGIOITA";
+  (function(){
+    const gate=document.getElementById('gate'), inp=document.getElementById('gateInput'),
+          btn=document.getElementById('gateBtn'), err=document.getElementById('gateErr');
+    if(sessionStorage.getItem('disc_ok_mg')==='1') gate.classList.add('hidden');
+    function unlock(){
+      if(inp.value.trim().toUpperCase()===ACCESS_CODE.toUpperCase()){
+        sessionStorage.setItem('disc_ok_mg','1'); gate.classList.add('hidden');
+      } else { err.textContent='Mật khẩu chưa đúng, thử lại nhé.'; inp.select(); }
+    }
+    btn.addEventListener('click',unlock);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') unlock(); });
+    setTimeout(()=>inp.focus(),100);
+  })();
+</script>
+<div class="wrap">
+  <header class="hero">
+    <span class="badge">TRẮC NGHIỆM TÍNH CÁCH DISC</span>
+    <h1>Bạn là kiểu môi giới nào?</h1>
+    <p>30 tình huống · khoảng 6 phút · dành cho chuyên viên môi giới bất động sản</p>
+  </header>
+
+  <div class="intro" id="introBox">
+    <h2>Cách làm</h2>
+    <ol>
+      <li>Mỗi câu có 4 đáp án. Bấm <b style="color:#2e9c5a">✓ Nhất</b> ở đáp án <b>giống bạn nhất</b>, và <b style="color:#c0392b">✗ Ít</b> ở đáp án <b>ít giống bạn nhất</b> (2 ô khác nhau). Trả lời theo bản năng.</li>
+      <li>Không có đáp án đúng/sai. Hãy chọn con người thật của bạn, không phải con người bạn "nên là".</li>
+      <li>Làm hết 30 câu rồi bấm <b>Xem kết quả</b> để hiểu hơn về tính cách của mình.</li>
+    </ol>
+  </div>
+
+  <div class="progressbar" id="pbar">
+    <div class="track"><div class="fill" id="pfill"></div></div>
+    <div class="txt" id="ptxt">0 / 30 câu</div>
+  </div>
+
+  <form id="quiz"></form>
+
+  <div class="cta">
+    <button class="submit" id="submitBtn" disabled>Xem kết quả</button>
+    <div class="warn" id="warn"></div>
+  </div>
+
+  <div id="result"></div>
+  <div class="foot">Trắc nghiệm theo mô hình DISC · Dành cho chuyên viên môi giới bất động sản</div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {t:"Khi có giỏ hàng mới mở bán, bạn…", opts:[
+    {d:"D",t:"Lao vào chốt nhanh nhất có thể, ôm cả khách khó."},
+    {d:"I",t:"Hào hứng đăng bài, gọi khách quen, rủ đồng đội cùng chạy."},
+    {d:"S",t:"Chăm chỉ theo từng khách, tư vấn kỹ, không vội."},
+    {d:"C",t:"Nghiên cứu pháp lý, giá, chính sách thật chắc rồi mới tư vấn."}]},
+  {t:"Mục tiêu doanh số tháng với bạn là…", opts:[
+    {d:"D",t:"Đích để vượt, càng cao càng máu."},
+    {d:"I",t:"Lý do để cả đội cùng phấn khích, ăn mừng."},
+    {d:"S",t:"Việc cần làm đều đặn, bền bỉ mỗi ngày."},
+    {d:"C",t:"Con số cần kế hoạch và quy trình rõ để đạt."}]},
+  {t:"Khi khách hẹn đi xem nhà mẫu, bạn…", opts:[
+    {d:"D",t:"Chốt lịch nhanh, hướng khách tới quyết định."},
+    {d:"I",t:"Tạo không khí vui, kể chuyện, làm khách quý mình trước."},
+    {d:"S",t:"Đồng hành nhẹ nhàng, để khách thoải mái, không ép."},
+    {d:"C",t:"Chuẩn bị đầy đủ hồ sơ, số liệu, so sánh dự án."}]},
+  {t:"Cách bạn theo đuổi một deal lớn…", opts:[
+    {d:"D",t:"Quyết liệt, bám sát, chốt dứt điểm."},
+    {d:"I",t:"Giữ quan hệ ấm, cà phê, tạo thiện cảm."},
+    {d:"S",t:"Kiên trì chăm sóc lâu dài, chờ khách sẵn sàng."},
+    {d:"C",t:"Phân tích nhu cầu, đưa lý lẽ và dữ liệu thuyết phục."}]},
+  {t:"Điều khiến bạn có động lực bán hàng nhất?", opts:[
+    {d:"D",t:"Đứng top bảng xếp hạng, hoa hồng lớn."},
+    {d:"I",t:"Được tuyên dương, được khách quý mến."},
+    {d:"S",t:"Khách tin tưởng, gắn bó, giới thiệu thêm người."},
+    {d:"C",t:"Tư vấn chuẩn, khách hài lòng vì mình làm đúng."}]},
+  {t:"Khi bị khách từ chối, bạn…", opts:[
+    {d:"D",t:"Chuyển sang khách mới ngay, tìm cơ hội quyết liệt hơn."},
+    {d:"I",t:"Hơi tiu nghỉu rồi lạc quan gọi khách khác."},
+    {d:"S",t:"Cần chút thời gian, vẫn giữ liên lạc nhẹ nhàng."},
+    {d:"C",t:"Xem lại mình thiếu gì để lần sau chuẩn hơn."}]},
+  {t:"Khi giỏ hàng hết căn đẹp, bạn…", opts:[
+    {d:"D",t:"Xoay nhanh sang sản phẩm khác, không chờ."},
+    {d:"I",t:"Hỏi khắp đồng đội, kết nối để có hàng."},
+    {d:"S",t:"Kiên nhẫn chăm khách cũ, chờ đợt mở bán mới."},
+    {d:"C",t:"Rà lại danh sách, lọc khách phù hợp sản phẩm còn lại."}]},
+  {t:"Bạn đánh giá một dự án để tư vấn dựa vào…", opts:[
+    {d:"D",t:"Tiềm năng lời nhanh, dễ chốt."},
+    {d:"I",t:"Độ hot, dễ làm khách thích, dễ kể chuyện."},
+    {d:"S",t:"Sự an toàn, uy tín chủ đầu tư, ở thực được."},
+    {d:"C",t:"Pháp lý, giá, dòng tiền, dữ liệu thị trường."}]},
+  {t:"Trong đội sale, bạn thường là…", opts:[
+    {d:"D",t:"Người chạy số mạnh, dẫn đầu doanh số."},
+    {d:"I",t:"Người tạo khí thế, kết nối cả đội."},
+    {d:"S",t:"Người hỗ trợ, giữ hoà khí, ai cần là có."},
+    {d:"C",t:"Người nắm chắc pháp lý, chính sách, ai hỏi cũng rõ."}]},
+  {t:"Khi tư vấn, bạn nói chuyện kiểu…", opts:[
+    {d:"D",t:"Thẳng, ngắn, đi vào lợi ích và quyết định."},
+    {d:"I",t:"Sôi nổi, kể chuyện, tạo cảm xúc cho khách."},
+    {d:"S",t:"Nhẹ nhàng, lắng nghe nhu cầu, không thúc."},
+    {d:"C",t:"Rõ ràng, chính xác, có số liệu, dẫn chứng."}]},
+  {t:"Đồng đội gặp khó, bạn…", opts:[
+    {d:"D",t:"Chỉ thẳng cách làm, đẩy họ hành động."},
+    {d:"I",t:"Động viên, truyền lửa cho vui."},
+    {d:"S",t:"Kiên nhẫn ngồi cùng, hỗ trợ tới cùng."},
+    {d:"C",t:"Hướng dẫn quy trình, tài liệu cụ thể."}]},
+  {t:"Khách nhắn tin cho bạn thường thấy…", opts:[
+    {d:"D",t:"Trả lời ngắn gọn, chốt việc nhanh."},
+    {d:"I",t:"Nhiệt tình, nhiều emoji, thân thiện."},
+    {d:"S",t:"Hỏi thăm nhẹ nhàng, chu đáo."},
+    {d:"C",t:"Đầy đủ thông tin, rõ ràng, kèm tài liệu."}]},
+  {t:"Bạn xây quan hệ với khách bằng…", opts:[
+    {d:"D",t:"Kết quả: giúp khách mua được căn tốt, có lời."},
+    {d:"I",t:"Sự thân thiện, gần gũi, vui vẻ."},
+    {d:"S",t:"Sự tận tâm, chăm sóc lâu dài, đáng tin."},
+    {d:"C",t:"Sự chuyên nghiệp, tư vấn chuẩn, minh bạch."}]},
+  {t:"Khi khách phân vân mãi chưa quyết, bạn…", opts:[
+    {d:"D",t:"Tạo áp lực nhẹ, thúc khách chốt."},
+    {d:"I",t:"Trò chuyện thêm, hâm nóng cảm xúc mua."},
+    {d:"S",t:"Cho khách thời gian, kiên nhẫn đồng hành."},
+    {d:"C",t:"Đưa thêm dữ liệu, so sánh để khách yên tâm."}]},
+  {t:"Bạn muốn được quản lý giao việc theo kiểu…", opts:[
+    {d:"D",t:"Cho mục tiêu, để mình tự do cách chạy."},
+    {d:"I",t:"Việc có tương tác, được thể hiện, được khen."},
+    {d:"S",t:"Hướng dẫn rõ, ổn định, có người hỗ trợ."},
+    {d:"C",t:"Tiêu chuẩn và quy trình rõ ràng."}]},
+  {t:"Khi đồng đội tranh khách, bạn…", opts:[
+    {d:"D",t:"Nói thẳng để phân định rạch ròi."},
+    {d:"I",t:"Cười xoà, giữ hoà khí, rủ nhau chia sẻ."},
+    {d:"S",t:"Nhường nhịn để tránh mất lòng."},
+    {d:"C",t:"Chiếu theo quy định công ty để xử đúng."}]},
+  {t:"Cuối tháng chưa đủ số, bạn…", opts:[
+    {d:"D",t:"Càng máu, cày tới cùng để đạt."},
+    {d:"I",t:"Cần đồng đội động viên, giữ tinh thần."},
+    {d:"S",t:"Dễ căng, cần môi trường ổn định để bình tĩnh."},
+    {d:"C",t:"Lập kế hoạch, rà từng khách tiềm năng."}]},
+  {t:"Khi ra quyết định gấp (giữ chỗ cho khách)…", opts:[
+    {d:"D",t:"Quyết nhanh, dứt khoát."},
+    {d:"I",t:"Quyết theo cảm giác và quan hệ với khách."},
+    {d:"S",t:"Cân nhắc kỹ, hỏi ý người có kinh nghiệm."},
+    {d:"C",t:"Kiểm tra thông tin, chắc chắn rồi mới quyết."}]},
+  {t:"Bị khách trách hoặc hiểu lầm, bạn…", opts:[
+    {d:"D",t:"Nói thẳng cho rõ chuyện."},
+    {d:"I",t:"Làm dịu bằng sự khéo léo, vui vẻ."},
+    {d:"S",t:"Nhẫn nhịn, giữ quan hệ êm đẹp."},
+    {d:"C",t:"Đưa bằng chứng, giải thích rõ đúng sai."}]},
+  {t:"Khi thị trường trầm lắng, bạn…", opts:[
+    {d:"D",t:"Chủ động tìm hướng mới, không ngồi yên."},
+    {d:"I",t:"Giữ kết nối, gặp gỡ, chờ cơ hội."},
+    {d:"S",t:"Kiên trì chăm khách cũ, làm đều."},
+    {d:"C",t:"Phân tích thị trường, chuẩn bị cho đợt sóng sau."}]},
+  {t:"Sắp tới hạn báo cáo / chốt booking, bạn…", opts:[
+    {d:"D",t:"Tập trung dứt điểm phần quan trọng."},
+    {d:"I",t:"Hay nước rút vào phút chót."},
+    {d:"S",t:"Làm đều đặn, đúng hạn, ngại gấp gáp."},
+    {d:"C",t:"Hoàn thành sớm, kiểm tra lại cho chắc."}]},
+  {t:"Điều khiến bạn khó chịu nhất khi đi làm?", opts:[
+    {d:"D",t:"Bị quản lý vi mô, mọi thứ chậm chạp."},
+    {d:"I",t:"Không khí buồn tẻ, bị phớt lờ."},
+    {d:"S",t:"Xung đột, thay đổi chính sách đột ngột."},
+    {d:"C",t:"Làm ẩu, hồ sơ sai sót, thiếu quy tắc."}]},
+  {t:"Gặp thương vụ khó (pháp lý rối, khách khó), bạn…", opts:[
+    {d:"D",t:"Lao vào xử lý ngay, quyết đoán."},
+    {d:"I",t:"Hỏi nhiều người, bàn cho ra cách."},
+    {d:"S",t:"Bình tĩnh, từ từ gỡ, nhờ hỗ trợ."},
+    {d:"C",t:"Phân tích kỹ gốc rễ rồi mới xử lý."}]},
+  {t:"Phong cách ăn mặc đi gặp khách của bạn…", opts:[
+    {d:"D",t:"Chỉn chu, sang, thể hiện đẳng cấp."},
+    {d:"I",t:"Nổi bật, hợp mốt, bắt mắt."},
+    {d:"S",t:"Lịch sự, giản dị, dễ gần."},
+    {d:"C",t:"Gọn gàng, đúng mực, chuyên nghiệp."}]},
+  {t:"Trên mạng xã hội, bạn hay đăng…", opts:[
+    {d:"D",t:"Thành tích chốt deal, trao sổ, mục tiêu."},
+    {d:"I",t:"Nhiều ảnh sự kiện, selfie với khách, livestream."},
+    {d:"S",t:"Ít đăng, hay chúc mừng / động viên người khác."},
+    {d:"C",t:"Tin pháp lý, phân tích dự án, kiến thức."}]},
+  {t:"Khi chốt được một căn, bạn…", opts:[
+    {d:"D",t:"Đặt ngay mục tiêu căn tiếp theo."},
+    {d:"I",t:"Khoe, ăn mừng cùng đồng đội."},
+    {d:"S",t:"Vui thầm, biết ơn khách đã tin."},
+    {d:"C",t:"Hài lòng vì đã tư vấn chuẩn, hồ sơ sạch."}]},
+  {t:"Cốp xe / túi đồ nghề của bạn…", opts:[
+    {d:"D",t:"Gọn, tối giản, chỉ thứ cần để chạy."},
+    {d:"I",t:"Hơi bừa, nhiều đồ cá nhân, name card khắp nơi."},
+    {d:"S",t:"Quen thuộc, ấm cúng, có vật kỷ niệm."},
+    {d:"C",t:"Ngăn nắp, hồ sơ phân loại đúng chỗ."}]},
+  {t:"Câu nào “giống bạn” nhất khi đi khách?", opts:[
+    {d:"D",t:"“Chốt được không, không thì tìm khách khác.”"},
+    {d:"I",t:"“Khách quý em là mua à!”"},
+    {d:"S",t:"“Anh/chị cứ từ từ, em hỗ trợ tới cùng.”"},
+    {d:"C",t:"“Để em kiểm tra pháp lý đã.”"}]},
+  {t:"Mục tiêu nghề môi giới của bạn nghiêng về…", opts:[
+    {d:"D",t:"Top sales, thu nhập cao, làm chủ."},
+    {d:"I",t:"Được nhiều người biết trong nghề, nhiều quan hệ."},
+    {d:"S",t:"Khách trung thành, nghề ổn định lâu dài."},
+    {d:"C",t:"Giỏi chuyên môn, tư vấn chuẩn, uy tín."}]},
+  {t:"Cuối tuần rảnh, bạn thiên về…", opts:[
+    {d:"D",t:"Vẫn chạy khách hoặc học cách chốt giỏi hơn."},
+    {d:"I",t:"Gặp gỡ, mở rộng quan hệ, đi chỗ đông vui."},
+    {d:"S",t:"Nghỉ ngơi cùng gia đình, nạp lại năng lượng."},
+    {d:"C",t:"Đọc, cập nhật thị trường, sắp xếp hồ sơ."}]}
+];
+
+const INFO = {
+  D:{name:"D — Người Thủ Lĩnh", color:"var(--d)", tag:"Quyết đoán · Kết quả · Cạnh tranh",
+    desc:"Bạn hướng tới kết quả, tốc độ và mục tiêu. Bạn dám quyết, dám làm, thích dẫn dắt và vượt qua thử thách.",
+    strong:["Quyết đoán, dám chịu trách nhiệm","Dẫn dắt và truyền lửa cho người khác","Tập trung vào kết quả, không bỏ cuộc"],
+    watch:["Dễ nóng vội, thiếu kiên nhẫn","Có thể lấn át người nhẹ tính hơn","Đôi khi bỏ qua cảm xúc của người khác"],
+    others:["Đi thẳng vào vấn đề, nói kết quả trước","Cho bạn quyền tự quyết, không kiểm soát quá mức","Góp ý thẳng, ngắn gọn; đừng vòng vo"]},
+  I:{name:"I — Người Truyền Cảm Hứng", color:"var(--i)", tag:"Quan hệ · Nhiệt huyết · Lạc quan",
+    desc:"Bạn sống bằng cảm xúc và sự kết nối. Bạn vui vẻ, hoạt ngôn, dễ tạo thiện cảm và truyền năng lượng tích cực cho mọi người.",
+    strong:["Giao tiếp tốt, tạo thiện cảm rất nhanh","Lạc quan, truyền cảm hứng cho người xung quanh","Linh hoạt, sáng tạo, dám thể hiện"],
+    watch:["Dễ quên chi tiết, thiếu kiên trì","Cần được công nhận, dễ hụt hơi khi bị phớt lờ","Đôi khi hứa quá lời hoặc nói nhiều hơn làm"],
+    others:["Khen ngợi và công nhận bạn","Tạo không khí vui vẻ, cởi mở","Hỗ trợ bạn bám sát chi tiết và kế hoạch"]},
+  S:{name:"S — Người Đồng Hành", color:"var(--s)", tag:"Ổn định · Tận tâm · Trung thành",
+    desc:"Bạn đáng tin và kiên nhẫn. Bạn biết lắng nghe, sẵn lòng hỗ trợ và là chỗ dựa vững vàng cho mọi người quanh mình.",
+    strong:["Kiên nhẫn, bền bỉ, đáng tin cậy","Biết lắng nghe và hỗ trợ người khác","Trung thành, giữ hòa khí trong nhóm"],
+    watch:["Ngại thay đổi và né tránh xung đột","Khó nói \"không\", dễ ôm việc của người khác","Cần thời gian để thích nghi, không thích bị thúc"],
+    others:["Trao đổi nhẹ nhàng, kiên nhẫn","Báo trước thay đổi, tạo cảm giác an toàn","Ghi nhận chân thành, riêng tư (họ ngại bị tung hô)"]},
+  C:{name:"C — Người Chuẩn Mực", color:"var(--c)", tag:"Chính xác · Logic · Cẩn thận",
+    desc:"Bạn coi trọng sự đúng đắn và chất lượng. Bạn làm việc kỹ lưỡng, suy nghĩ thấu đáo và rất đáng tin về chuyên môn.",
+    strong:["Cẩn thận, chính xác, ít sai sót","Tư duy logic, phân tích tốt","Có nguyên tắc, làm việc đáng tin cậy"],
+    watch:["Cầu toàn nên đôi khi quyết định chậm","Khó linh hoạt khi thiếu thông tin","Ít biểu lộ cảm xúc, dễ bị xem là khô khan"],
+    others:["Đưa thông tin, dữ liệu rõ ràng","Thuyết phục bằng lý lẽ, bằng chứng","Cho thời gian chuẩn bị; đừng ép quyết vội"]},
+};
+const COLORHEX = {D:"#E03B3B", I:"#F2A93B", S:"#3BA55C", C:"#3B7DE0"};
+
+const form=document.getElementById('quiz'); const aMost={}, aLeast={}, dispNum={};
+function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+const TOPICS = [
+  { name:"💼 Chạy số & Chốt deal", idx:[0,1,2,3,4,5,6,7] },
+  { name:"🤝 Khách hàng & Đồng đội", idx:[8,9,10,11,12,13,14,15] },
+  { name:"🧭 Áp lực & Ra quyết định", idx:[16,17,18,19,20,21,22] },
+  { name:"🌟 Phong cách & Thói quen", idx:[23,24,25,26,27,28,29] }
+];
+let _n=0;
+TOPICS.forEach(tp=>{
+  const head=document.createElement('div'); head.className='topic-head';
+  head.innerHTML=`${tp.name} <span class="ct">· ${tp.idx.length} câu</span>`;
+  form.appendChild(head);
+  tp.idx.forEach(i=>{
+    _n++; dispNum[i]=_n; const q=QUESTIONS[i];
+    const div=document.createElement('div'); div.className='q'; div.id='q'+i;
+    const opts=shuffle(q.opts).map(o=>`
+      <div class="opt" data-q="${i}" data-d="${o.d}">
+        <span class="otext">${o.t}</span>
+        <span class="ticks">
+          <button type="button" class="tk most" data-q="${i}" data-d="${o.d}" data-type="most">✓ Nhất</button>
+          <button type="button" class="tk least" data-q="${i}" data-d="${o.d}" data-type="least">✗ Ít</button>
+        </span>
+      </div>`).join('');
+    div.innerHTML=`<div class="num">CÂU ${_n}/30</div>
+      <div class="text">${q.t}</div><div class="opts">${opts}</div>`;
+    form.appendChild(div);
+  });
+});
+const pfill=document.getElementById('pfill'),ptxt=document.getElementById('ptxt'),
+      submitBtn=document.getElementById('submitBtn'),warn=document.getElementById('warn');
+form.addEventListener('click',e=>{
+  const tk=e.target.closest('.tk'); if(!tk) return;
+  const qi=tk.dataset.q, d=tk.dataset.d, type=tk.dataset.type;
+  if(type==='most'){
+    if(aLeast[qi]===d) delete aLeast[qi];
+    if(aMost[qi]===d) delete aMost[qi]; else aMost[qi]=d;
+  } else {
+    if(aMost[qi]===d) delete aMost[qi];
+    if(aLeast[qi]===d) delete aLeast[qi]; else aLeast[qi]=d;
+  }
+  refreshQ(qi); updateProgress();
+});
+function refreshQ(qi){
+  const qd=document.getElementById('q'+qi);
+  qd.querySelectorAll('.opt').forEach(o=>{
+    const d=o.dataset.d;
+    o.classList.toggle('is-most', aMost[qi]===d);
+    o.classList.toggle('is-least', aLeast[qi]===d);
+    o.querySelector('.tk.most').classList.toggle('on', aMost[qi]===d);
+    o.querySelector('.tk.least').classList.toggle('on', aLeast[qi]===d);
+  });
+  if(aMost[qi]!==undefined && aLeast[qi]!==undefined) qd.classList.add('answered'); else qd.classList.remove('answered');
+}
+function updateProgress(){
+  let n=0; for(let i=0;i<30;i++){ if(aMost[i]!==undefined && aLeast[i]!==undefined) n++; }
+  pfill.style.width=(n/30*100)+'%'; ptxt.textContent=n+' / 30 câu';
+  submitBtn.disabled=n<30; if(n===30) warn.textContent='';
+}
+submitBtn.addEventListener('click',()=>{
+  const miss=[]; for(let i=0;i<30;i++){ if(aMost[i]===undefined||aLeast[i]===undefined) miss.push({n:dispNum[i],id:i}); }
+  if(miss.length){ miss.sort((a,b)=>a.n-b.n);
+    warn.textContent='Còn thiếu (cần cả ✓ Nhất & ✗ Ít) ở câu: '+miss.slice(0,10).map(m=>m.n).join(', ')+(miss.length>10?'...':'');
+    document.getElementById('q'+miss[0].id).scrollIntoView({behavior:'smooth',block:'center'}); return;
+  }
+  showResult();
+});
+function radarSVG(net){
+  const ks=['D','I','S','C'], ang={D:-90,I:0,S:90,C:180}, cx=150, cy=150, maxR=108;
+  const vals=ks.map(k=>net[k]), mn=Math.min(...vals), mx=Math.max(...vals);
+  const norm=k=> (mx===mn)?0.55:(net[k]-mn)/(mx-mn);
+  const rad=k=> (0.18+0.82*norm(k))*maxR;
+  const P=k=>{const a=ang[k]*Math.PI/180; return [cx+rad(k)*Math.cos(a), cy+rad(k)*Math.sin(a)];};
+  let grid=''; [0.25,0.5,0.75,1].forEach(f=>{ const r=f*maxR;
+    grid+=`<polygon points="${ks.map(k=>{const a=ang[k]*Math.PI/180;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);}).join(' ')}" fill="none" stroke="#e6e8ee" stroke-width="1"/>`; });
+  const axes=ks.map(k=>{const a=ang[k]*Math.PI/180;return `<line x1="${cx}" y1="${cy}" x2="${(cx+maxR*Math.cos(a)).toFixed(1)}" y2="${(cy+maxR*Math.sin(a)).toFixed(1)}" stroke="#e6e8ee" stroke-width="1"/>`;}).join('');
+  const pts=ks.map(P), poly=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const dots=ks.map((k,idx)=>`<circle cx="${pts[idx][0].toFixed(1)}" cy="${pts[idx][1].toFixed(1)}" r="6.5" fill="${COLORHEX[k]}" stroke="#fff" stroke-width="2"/>`).join('');
+  const labels=ks.map(k=>{const a=ang[k]*Math.PI/180, lx=cx+(maxR+24)*Math.cos(a), ly=cy+(maxR+24)*Math.sin(a);
+    return `<text x="${lx.toFixed(0)}" y="${(ly+6).toFixed(0)}" text-anchor="middle" font-size="20" font-weight="800" fill="${COLORHEX[k]}">${k}</text>`;}).join('');
+  return `<svg viewBox="0 0 300 300" width="300" height="300">${grid}${axes}<polygon points="${poly}" fill="rgba(44,62,102,.13)" stroke="#2c3e66" stroke-width="2.5" stroke-linejoin="round"/>${dots}${labels}</svg>`;
+}
+function showResult(){
+  const most={D:0,I:0,S:0,C:0}, least={D:0,I:0,S:0,C:0};
+  for(let i=0;i<30;i++){ most[aMost[i]]++; least[aLeast[i]]++; }
+  const net={}; for(const k in most){ net[k]=most[k]-least[k]; }
+  const order=Object.keys(net).sort((a,b)=>net[b]-net[a]);
+  const primary=order[0],secondary=order[1],info=INFO[primary];
+  const html=`
+  <div class="res-card">
+    <div class="res-head">
+      <div class="big" style="color:${info.color}">${primary}</div>
+      <div class="label">${info.name}</div>
+      <div class="sub">${info.tag}</div>
+      <div class="sub" style="margin-top:8px">Nhóm phụ của bạn: <b>${secondary}</b> — ${INFO[secondary].name.split('—')[1].trim()}</div>
+    </div>
+    <div class="radar">${radarSVG(net)}</div>
+    <div class="radar-cap">Điểm = số lần <b style="color:#2e9c5a">Giống nhất</b> − số lần <b style="color:#c0392b">Ít giống</b> &nbsp;·&nbsp; D ${net.D} · I ${net.I} · S ${net.S} · C ${net.C}</div>
+    <div class="section">
+      <p style="font-size:15px">${info.desc}</p>
+      <h3><span class="pill" style="background:${info.color}"></span> Điểm mạnh của bạn</h3>
+      <ul>${info.strong.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <h3>⚠️ Điểm cần lưu ý</h3>
+      <ul>${info.watch.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <h3>🤝 Cách người khác nên giao tiếp & làm việc với bạn</h3>
+      <ul>${info.others.map(x=>`<li>${x}</li>`).join('')}</ul>
+      <div class="note">
+        <b>Lưu ý:</b> Không ai thuần 100% một nhóm. Bạn là sự pha trộn của <b>${primary}</b> (chính) và <b>${secondary}</b> (phụ).
+        DISC mô tả <i>phong cách hành vi</i>, không đo năng lực hay giá trị con người — không nhóm nào "tốt" hay "xấu" hơn.
+      </div>
+    </div>
+    <button class="retry" onclick="location.reload()">↻ Làm lại bài test</button>
+  </div>`;
+  const res=document.getElementById('result');
+  res.innerHTML=html; res.style.display='block';
+  document.getElementById('quiz').style.display='none';
+  document.querySelector('.cta').style.display='none';
+  document.getElementById('pbar').style.display='none';
+  document.getElementById('introBox').style.display='none';
+  res.scrollIntoView({behavior:'smooth'});
+}
+</script>
+</body>
+</html>

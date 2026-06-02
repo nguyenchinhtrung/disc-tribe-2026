@@ -56,6 +56,15 @@
   .bar-row .track{flex:1;height:16px;background:#eef0f6;border-radius:99px;overflow:hidden}
   .bar-row .fill{height:100%;border-radius:99px;transition:width .8s ease}
   .bar-row .pct{width:42px;text-align:right;font-size:13px;color:var(--muted);font-weight:600}
+  .topic-head{margin:24px 0 12px;padding:9px 15px;background:#2c3e66;color:#fff;border-radius:11px;font-size:15.5px;font-weight:700;letter-spacing:.2px}
+  .topic-head:first-child{margin-top:2px}
+  .topic-head .ct{font-weight:400;opacity:.82;font-size:12.5px}
+  .vchart{display:flex;align-items:flex-end;justify-content:center;gap:20px;height:210px;margin:20px 0 8px;padding:0 6px}
+  .vbar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .vbar .pct{font-size:14px;font-weight:800;margin-bottom:5px}
+  .vbar .col{width:50px;border-radius:9px 9px 0 0;height:0;transition:height .9s cubic-bezier(.2,.7,.2,1)}
+  .vbar .lbl{margin-top:9px;font-size:18px;font-weight:800}
+  .vbar .nm{font-size:10.5px;color:var(--muted);margin-top:2px;text-align:center;max-width:78px;line-height:1.25}
   .section h3{font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
   .section ul{margin:6px 0 0;padding-left:20px}
   .section li{margin-bottom:5px;font-size:14.5px}
@@ -279,13 +288,26 @@ const COLORHEX = {D:"#E03B3B", I:"#F2A93B", S:"#3BA55C", C:"#3B7DE0"};
 
 const form=document.getElementById('quiz'), answers={};
 function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
-QUESTIONS.forEach((q,i)=>{
-  const div=document.createElement('div'); div.className='q'; div.id='q'+i;
-  const opts=shuffle(q.opts).map(o=>`
-    <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
-  div.innerHTML=`<div class="num">TÌNH HUỐNG ${i+1}/30</div>
-    <div class="text">${q.t}</div><div class="opts">${opts}</div>`;
-  form.appendChild(div);
+const TOPICS = [
+  { name:"💼 Công việc & Mục tiêu", idx:[0,11,20,21,25,28] },
+  { name:"🤝 Giao tiếp & Quan hệ", idx:[1,4,6,12,15,16,18,23,26] },
+  { name:"🧭 Ra quyết định & Áp lực", idx:[2,3,17,19,22,24,29] },
+  { name:"🌟 Phong cách & Đời sống", idx:[5,7,8,9,10,13,14,27] },
+];
+let _n=0;
+TOPICS.forEach(tp=>{
+  const head=document.createElement('div'); head.className='topic-head';
+  head.innerHTML=`${tp.name} <span class="ct">· ${tp.idx.length} câu</span>`;
+  form.appendChild(head);
+  tp.idx.forEach(i=>{
+    _n++; const q=QUESTIONS[i];
+    const div=document.createElement('div'); div.className='q'; div.id='q'+i;
+    const opts=shuffle(q.opts).map(o=>`
+      <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
+    div.innerHTML=`<div class="num">CÂU ${_n}/30</div>
+      <div class="text">${q.t}</div><div class="opts">${opts}</div>`;
+    form.appendChild(div);
+  });
 });
 const pfill=document.getElementById('pfill'),ptxt=document.getElementById('ptxt'),
       submitBtn=document.getElementById('submitBtn'),warn=document.getElementById('warn');
@@ -313,11 +335,13 @@ function showResult(){
   for(const k in count) pct[k]=Math.round(count[k]/total*100);
   const order=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
   const primary=order[0],secondary=order[1],info=INFO[primary];
-  const barsHtml=order.map(k=>`
-    <div class="bar-row">
-      <div class="k"><span class="pill" style="background:${COLORHEX[k]}"></span> ${INFO[k].name}</div>
-      <div class="track"><div class="fill" style="background:${COLORHEX[k]};width:0" data-w="${pct[k]}"></div></div>
-      <div class="pct">${pct[k]}%</div>
+  const maxp=Math.max(1,...Object.values(pct));
+  const chartHtml=['D','I','S','C'].map(k=>`
+    <div class="vbar">
+      <div class="pct" style="color:${COLORHEX[k]}">${pct[k]}%</div>
+      <div class="col" style="background:${COLORHEX[k]}" data-h="${Math.round(pct[k]/maxp*100)}"></div>
+      <div class="lbl" style="color:${COLORHEX[k]}">${k}</div>
+      <div class="nm">${INFO[k].name.split('—')[1] ? INFO[k].name.split('—')[1].trim() : k}</div>
     </div>`).join('');
   const html=`
   <div class="res-card">
@@ -327,7 +351,7 @@ function showResult(){
       <div class="sub">${info.tag}</div>
       <div class="sub" style="margin-top:8px">Nhóm phụ của bạn: <b>${secondary}</b> — ${INFO[secondary].name.split('—')[1].trim()}</div>
     </div>
-    <div class="bars">${barsHtml}</div>
+    <div class="vchart">${chartHtml}</div>
     <div class="section">
       <p style="font-size:15px">${info.desc}</p>
       <h3><span class="pill" style="background:${info.color}"></span> Điểm mạnh của bạn</h3>
@@ -350,7 +374,7 @@ function showResult(){
   document.getElementById('pbar').style.display='none';
   document.getElementById('introBox').style.display='none';
   res.scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>{ res.querySelectorAll('.bar-row .fill').forEach(f=>f.style.width=f.dataset.w+'%'); },120);
+  setTimeout(()=>{ res.querySelectorAll('.vbar .col').forEach(c=>c.style.height=c.dataset.h+'%'); },120);
 }
 </script>
 </body>

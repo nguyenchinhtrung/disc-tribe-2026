@@ -108,14 +108,14 @@
 </div>
 <script>
   // ====== MÃ LỚP — đổi tại đây ======
-  const ACCESS_CODE = "TADISC";
+  const ACCESS_CODE = "QUANLYTA";
   (function(){
     const gate=document.getElementById('gate'), inp=document.getElementById('gateInput'),
           btn=document.getElementById('gateBtn'), err=document.getElementById('gateErr');
-    if(sessionStorage.getItem('disc_ok')==='1') gate.classList.add('hidden');
+    if(sessionStorage.getItem('disc_ok_bds')==='1') gate.classList.add('hidden');
     function unlock(){
       if(inp.value.trim().toUpperCase()===ACCESS_CODE.toUpperCase()){
-        sessionStorage.setItem('disc_ok','1'); gate.classList.add('hidden');
+        sessionStorage.setItem('disc_ok_bds','1'); gate.classList.add('hidden');
       } else { err.textContent='Mã chưa đúng, thử lại nhé.'; inp.select(); }
     }
     btn.addEventListener('click',unlock);

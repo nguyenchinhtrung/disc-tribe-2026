@@ -74,9 +74,51 @@
   .retry{display:block;width:100%;text-align:center;padding:13px;border:1px solid var(--line);border-radius:12px;
     background:#fff;color:var(--ink);font-size:15px;cursor:pointer;margin-top:8px}
   .foot{text-align:center;color:var(--muted);font-size:12px;margin-top:26px}
+  /* cổng mật khẩu */
+  .gate{position:fixed;inset:0;z-index:100;background:linear-gradient(135deg,#1d2433,#2c3e66);
+    display:flex;align-items:center;justify-content:center;padding:20px}
+  .gate.hidden{display:none}
+  .gate .box{background:#fff;border-radius:18px;padding:30px 26px;max-width:360px;width:100%;
+    text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.3)}
+  .gate .box .lock{font-size:34px}
+  .gate .box h2{margin:6px 0 6px;font-size:20px;color:#1d2433}
+  .gate .box p{margin:0 0 18px;color:#6b7280;font-size:14px}
+  .gate input{width:100%;padding:13px;border:1.5px solid #e6e8ee;border-radius:11px;font-size:16px;
+    text-align:center;letter-spacing:1px;margin-bottom:10px}
+  .gate input:focus{outline:none;border-color:#2c3e66}
+  .gate button{width:100%;padding:13px;border:0;border-radius:11px;background:#2c3e66;color:#fff;
+    font-size:16px;font-weight:600;cursor:pointer}
+  .gate .err{color:#E03B3B;font-size:13px;min-height:18px;margin-top:8px}
 </style>
 </head>
 <body>
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="lock">🔒</div>
+    <h2>Trắc nghiệm DISC</h2>
+    <p>Nhập <b>mật khẩu</b> do người tổ chức cung cấp để bắt đầu.</p>
+    <input id="gateInput" type="text" placeholder="Mật khẩu" autocomplete="off">
+    <button id="gateBtn">Vào làm bài</button>
+    <div class="err" id="gateErr"></div>
+  </div>
+</div>
+<script>
+  // ====== MẬT KHẨU — đổi tại đây ======
+  const ACCESS_CODE = "TRIBEDISC";
+  (function(){
+    const gate=document.getElementById('gate'), inp=document.getElementById('gateInput'),
+          btn=document.getElementById('gateBtn'), err=document.getElementById('gateErr');
+    if(sessionStorage.getItem('disc_ok_pt')==='1') gate.classList.add('hidden');
+    function unlock(){
+      if(inp.value.trim().toUpperCase()===ACCESS_CODE.toUpperCase()){
+        sessionStorage.setItem('disc_ok_pt','1'); gate.classList.add('hidden');
+      } else { err.textContent='Mật khẩu chưa đúng, thử lại nhé.'; inp.select(); }
+    }
+    btn.addEventListener('click',unlock);
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter') unlock(); });
+    setTimeout(()=>inp.focus(),100);
+  })();
+</script>
 <div class="wrap">
   <header class="hero">
     <span class="badge">TRẮC NGHIỆM TÍNH CÁCH DISC</span>

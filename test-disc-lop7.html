@@ -30,12 +30,16 @@
   .q .num{font-size:12px;color:#a17ee0;font-weight:700}
   .q .text{font-size:17px;margin:5px 0 14px;font-weight:600}
   .opts{display:flex;flex-direction:column;gap:8px}
-  .opt{display:flex;align-items:flex-start;gap:11px;border:2px solid var(--line);border-radius:14px;
-    padding:11px 14px;cursor:pointer;font-size:15px;color:var(--ink);user-select:none;transition:.15s;background:#fff;line-height:1.45}
-  .opt:hover{border-color:#ffb23e;background:#fffdf7}
-  .opt .mk{flex:0 0 20px;width:20px;height:20px;border:2px solid #d9c9f0;border-radius:50%;margin-top:1px;transition:.15s}
-  .opt.sel{background:#6a5ae0;border-color:#6a5ae0;color:#fff;font-weight:600}
-  .opt.sel .mk{background:#fff;border-color:#fff;box-shadow:inset 0 0 0 4px #6a5ae0}
+  .opt{display:flex;align-items:center;gap:10px;border:2px solid var(--line);border-radius:14px;
+    padding:9px 10px 9px 14px;font-size:15px;color:var(--ink);background:#fff;transition:.15s;line-height:1.4}
+  .opt .otext{flex:1}
+  .opt.is-most{border-color:#2e9c5a;background:#eafaf1}
+  .opt.is-least{border-color:#e1574a;background:#fdeeea}
+  .ticks{display:flex;gap:6px;flex:0 0 auto}
+  .tk{border:2px solid #e4dcf5;background:#fff;border-radius:11px;padding:7px 9px;font-size:11.5px;font-weight:700;
+    cursor:pointer;color:#9a93a6;min-width:50px;text-align:center;user-select:none;line-height:1.15}
+  .tk.most.on{background:#2e9c5a;border-color:#2e9c5a;color:#fff}
+  .tk.least.on{background:#e1574a;border-color:#e1574a;color:#fff}
   .cta{position:sticky;bottom:0;padding:14px 0 4px;background:linear-gradient(0deg,#f0f7ff 70%,transparent)}
   button.submit{width:100%;padding:16px;border:0;border-radius:16px;background:linear-gradient(135deg,#6a5ae0,#ff7eb3);
     color:#fff;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 8px 20px rgba(106,90,224,.3)}
@@ -56,12 +60,9 @@
   .topic-head{margin:22px 0 12px;padding:10px 16px;background:linear-gradient(135deg,#6a5ae0,#ff7eb3);color:#fff;border-radius:14px;font-size:16px;font-weight:700}
   .topic-head:first-child{margin-top:2px}
   .topic-head .ct{font-weight:400;opacity:.9;font-size:13px}
-  .vchart{display:flex;align-items:flex-end;justify-content:center;gap:18px;height:200px;margin:18px 0 8px}
-  .vbar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-  .vbar .pct{font-size:15px;font-weight:800;margin-bottom:5px}
-  .vbar .col{width:48px;border-radius:11px 11px 0 0;height:0;transition:height .9s cubic-bezier(.2,.7,.2,1)}
-  .vbar .lbl{margin-top:8px;font-size:26px}
-  .vbar .nm{font-size:12px;font-weight:700;color:var(--ink);margin-top:2px}
+  .radar{display:flex;justify-content:center;margin:14px 0 4px}
+  .radar svg{max-width:330px;width:100%;height:auto}
+  .radar-cap{text-align:center;font-size:13px;color:var(--muted);margin-top:4px}
   .section h3{font-size:16px;margin:18px 0 6px}
   .section ul{margin:6px 0 0;padding-left:22px}
   .section li{margin-bottom:6px;font-size:15px}
@@ -121,9 +122,10 @@
   </header>
 
   <div class="intro" id="introBox">
-    Chào em! 👋 Mỗi câu là một <b>tình huống nho nhỏ</b> ở trường, với bạn bè hoặc ở nhà.
-    Em hãy chọn <b>cách giống em nhất</b> — chọn theo cảm giác đầu tiên, <b>không có đáp án đúng hay sai</b>.
-    Làm xong 30 câu, em sẽ biết mình giống <b>con vật tính cách</b> nào! 🐯🐵🐨🦉
+    Chào em! 👋 Mỗi câu có 4 cách. Em bấm <b style="color:#2e9c5a">✓ Nhất</b> ở cách <b>giống em nhất</b>,
+    và <b style="color:#e1574a">✗ Ít</b> ở cách <b>ít giống em nhất</b> (2 ô khác nhau nhé).
+    Chọn theo cảm giác đầu tiên — <b>không có đúng hay sai</b>. Làm xong 30 câu, em sẽ biết mình giống
+    <b>con vật tính cách</b> nào! 🐯🐵🐨🦉
   </div>
 
   <div class="progressbar" id="pbar">
@@ -321,7 +323,7 @@ const INFO = {
 const COLORHEX = {D:"#FF6B5E", I:"#FFB23E", S:"#4FBF74", C:"#5B8DEF"};
 const SHORT = {D:"🐯 Hổ con", I:"🐵 Khỉ con", S:"🐨 Gấu con", C:"🦉 Cú mèo"};
 
-const form=document.getElementById('quiz'), answers={};
+const form=document.getElementById('quiz'); const aMost={}, aLeast={}, dispNum={};
 function shuffle(arr){ const a=arr.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 const TOPICS = [
   { name:"📚 Học tập & Lớp học", idx:[0,3,4,7,10,14,17,18,20,21,25] },
@@ -335,10 +337,16 @@ TOPICS.forEach(tp=>{
   head.innerHTML=`${tp.name} <span class="ct">· ${tp.idx.length} câu</span>`;
   form.appendChild(head);
   tp.idx.forEach(i=>{
-    _n++; const q=QUESTIONS[i];
+    _n++; dispNum[i]=_n; const q=QUESTIONS[i];
     const div=document.createElement('div'); div.className='q'; div.id='q'+i;
     const opts=shuffle(q.opts).map(o=>`
-      <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
+      <div class="opt" data-q="${i}" data-d="${o.d}">
+        <span class="otext">${o.t}</span>
+        <span class="ticks">
+          <button type="button" class="tk most" data-q="${i}" data-d="${o.d}" data-type="most">✓ Nhất</button>
+          <button type="button" class="tk least" data-q="${i}" data-d="${o.d}" data-type="least">✗ Ít</button>
+        </span>
+      </div>`).join('');
     div.innerHTML=`<div class="num">CÂU ${_n} / 30</div>
       <div class="text">${q.t}</div><div class="opts">${opts}</div>`;
     form.appendChild(div);
@@ -347,37 +355,62 @@ TOPICS.forEach(tp=>{
 const pfill=document.getElementById('pfill'),ptxt=document.getElementById('ptxt'),
       submitBtn=document.getElementById('submitBtn'),warn=document.getElementById('warn');
 form.addEventListener('click',e=>{
-  const opt=e.target.closest('.opt'); if(!opt) return;
-  const qi=opt.dataset.q; answers[qi]=opt.dataset.d;
-  opt.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
-  opt.classList.add('sel'); document.getElementById('q'+qi).classList.add('answered');
-  const n=Object.keys(answers).length;
+  const tk=e.target.closest('.tk'); if(!tk) return;
+  const qi=tk.dataset.q, d=tk.dataset.d, type=tk.dataset.type;
+  if(type==='most'){
+    if(aLeast[qi]===d) delete aLeast[qi];
+    if(aMost[qi]===d) delete aMost[qi]; else aMost[qi]=d;
+  } else {
+    if(aMost[qi]===d) delete aMost[qi];
+    if(aLeast[qi]===d) delete aLeast[qi]; else aLeast[qi]=d;
+  }
+  refreshQ(qi); updateProgress();
+});
+function refreshQ(qi){
+  const qd=document.getElementById('q'+qi);
+  qd.querySelectorAll('.opt').forEach(o=>{
+    const d=o.dataset.d;
+    o.classList.toggle('is-most', aMost[qi]===d);
+    o.classList.toggle('is-least', aLeast[qi]===d);
+    o.querySelector('.tk.most').classList.toggle('on', aMost[qi]===d);
+    o.querySelector('.tk.least').classList.toggle('on', aLeast[qi]===d);
+  });
+  if(aMost[qi]!==undefined && aLeast[qi]!==undefined) qd.classList.add('answered'); else qd.classList.remove('answered');
+}
+function updateProgress(){
+  let n=0; for(let i=0;i<30;i++){ if(aMost[i]!==undefined && aLeast[i]!==undefined) n++; }
   pfill.style.width=(n/30*100)+'%'; ptxt.textContent=n+' / 30 câu';
   submitBtn.disabled=n<30; if(n===30) warn.textContent='';
-});
+}
+function radarSVG(net){
+  const ks=['D','I','S','C'], ang={D:-90,I:0,S:90,C:180}, cx=150, cy=150, maxR=104;
+  const vals=ks.map(k=>net[k]), mn=Math.min(...vals), mx=Math.max(...vals);
+  const norm=k=> (mx===mn)?0.55:(net[k]-mn)/(mx-mn);
+  const rad=k=> (0.18+0.82*norm(k))*maxR;
+  const P=k=>{const a=ang[k]*Math.PI/180; return [cx+rad(k)*Math.cos(a), cy+rad(k)*Math.sin(a)];};
+  let grid=''; [0.25,0.5,0.75,1].forEach(f=>{ const r=f*maxR;
+    grid+=`<polygon points="${ks.map(k=>{const a=ang[k]*Math.PI/180;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);}).join(' ')}" fill="none" stroke="#ece6f5" stroke-width="1"/>`; });
+  const axes=ks.map(k=>{const a=ang[k]*Math.PI/180;return `<line x1="${cx}" y1="${cy}" x2="${(cx+maxR*Math.cos(a)).toFixed(1)}" y2="${(cy+maxR*Math.sin(a)).toFixed(1)}" stroke="#ece6f5" stroke-width="1"/>`;}).join('');
+  const pts=ks.map(P), poly=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const dots=ks.map((k,idx)=>`<circle cx="${pts[idx][0].toFixed(1)}" cy="${pts[idx][1].toFixed(1)}" r="7" fill="${COLORHEX[k]}" stroke="#fff" stroke-width="2"/>`).join('');
+  const labels=ks.map(k=>{const a=ang[k]*Math.PI/180, lx=cx+(maxR+26)*Math.cos(a), ly=cy+(maxR+26)*Math.sin(a);
+    return `<text x="${lx.toFixed(0)}" y="${(ly+9).toFixed(0)}" text-anchor="middle" font-size="26">${INFO[k].animal}</text>`;}).join('');
+  return `<svg viewBox="0 0 300 300" width="300" height="300">${grid}${axes}<polygon points="${poly}" fill="rgba(106,90,224,.15)" stroke="#6a5ae0" stroke-width="2.5" stroke-linejoin="round"/>${dots}${labels}</svg>`;
+}
 submitBtn.addEventListener('click',()=>{
-  if(Object.keys(answers).length<30){
-    const miss=[]; for(let i=0;i<30;i++) if(!(i in answers)) miss.push(i+1);
-    warn.textContent='Em còn thiếu câu: '+miss.slice(0,10).join(', ')+(miss.length>10?'...':'');
-    document.getElementById('q'+(miss[0]-1)).scrollIntoView({behavior:'smooth',block:'center'}); return;
+  const miss=[]; for(let i=0;i<30;i++){ if(aMost[i]===undefined||aLeast[i]===undefined) miss.push({n:dispNum[i],id:i}); }
+  if(miss.length){ miss.sort((a,b)=>a.n-b.n);
+    warn.textContent='Em còn thiếu (chọn cả ✓ Nhất & ✗ Ít) ở câu: '+miss.slice(0,10).map(m=>m.n).join(', ')+(miss.length>10?'...':'');
+    document.getElementById('q'+miss[0].id).scrollIntoView({behavior:'smooth',block:'center'}); return;
   }
   showResult();
 });
 function showResult(){
-  const count={D:0,I:0,S:0,C:0};
-  Object.values(answers).forEach(d=>{ if(count[d]!==undefined) count[d]++; });
-  const total=QUESTIONS.length, pct={};
-  for(const k in count) pct[k]=Math.round(count[k]/total*100);
-  const order=Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
+  const most={D:0,I:0,S:0,C:0}, least={D:0,I:0,S:0,C:0};
+  for(let i=0;i<30;i++){ most[aMost[i]]++; least[aLeast[i]]++; }
+  const net={}; for(const k in most){ net[k]=most[k]-least[k]; }
+  const order=Object.keys(net).sort((a,b)=>net[b]-net[a]);
   const primary=order[0],secondary=order[1],info=INFO[primary];
-  const maxp=Math.max(1,...Object.values(pct));
-  const bars=['D','I','S','C'].map(k=>`
-    <div class="vbar">
-      <div class="pct" style="color:${COLORHEX[k]}">${pct[k]}%</div>
-      <div class="col" style="background:${COLORHEX[k]}" data-h="${Math.round(pct[k]/maxp*100)}"></div>
-      <div class="lbl">${INFO[k].animal}</div>
-      <div class="nm">${SHORT[k].replace(/^\S+\s/,'')}</div>
-    </div>`).join('');
   const html=`
   <div class="res-card">
     <div class="res-head">
@@ -386,7 +419,8 @@ function showResult(){
       <div class="sub">${info.tag}</div>
       <div class="sub" style="margin-top:8px">Tính cách phụ của em: <b>${SHORT[secondary]}</b></div>
     </div>
-    <div class="vchart">${bars}</div>
+    <div class="radar">${radarSVG(net)}</div>
+    <div class="radar-cap">Điểm = số lần <b style="color:#2e9c5a">Giống nhất</b> − số lần <b style="color:#e1574a">Ít giống</b></div>
     <div class="section">
       <p style="font-size:15.5px">${info.desc}</p>
       <h3>✨ Điểm mạnh tuyệt vời của em</h3>
@@ -409,7 +443,6 @@ function showResult(){
   form.style.display='none'; document.querySelector('.cta').style.display='none';
   document.getElementById('pbar').style.display='none'; document.getElementById('introBox').style.display='none';
   res.scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>{res.querySelectorAll('.vbar .col').forEach(c=>c.style.height=c.dataset.h+'%');},120);
 }
 </script>
 </body>

@@ -34,12 +34,16 @@
   .q .num{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.4px}
   .q .text{font-size:16px;margin:4px 0 14px;font-weight:500}
   .opts{display:flex;flex-direction:column;gap:8px}
-  .opt{display:flex;align-items:flex-start;gap:11px;border:1.5px solid var(--line);border-radius:11px;
-    padding:11px 14px;cursor:pointer;font-size:14.5px;color:var(--ink);user-select:none;transition:.15s;background:#fafbfe;line-height:1.45}
-  .opt:hover{border-color:#aab6d6;background:#f1f5fd}
-  .opt .mk{flex:0 0 20px;width:20px;height:20px;border:2px solid #c3ccde;border-radius:50%;margin-top:1px;transition:.15s}
-  .opt.sel{background:#2c3e66;border-color:#2c3e66;color:#fff;font-weight:500}
-  .opt.sel .mk{background:#fff;border-color:#fff;box-shadow:inset 0 0 0 4px #2c3e66}
+  .opt{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line);border-radius:11px;
+    padding:8px 10px 8px 14px;font-size:14px;color:var(--ink);background:#fafbfe;transition:.15s;line-height:1.4}
+  .opt .otext{flex:1}
+  .opt.is-most{border-color:#2e9c5a;background:#eafaf1}
+  .opt.is-least{border-color:#c0392b;background:#fdeeea}
+  .ticks{display:flex;gap:6px;flex:0 0 auto}
+  .tk{border:1.5px solid #cdd4e2;background:#fff;border-radius:9px;padding:6px 8px;font-size:11px;font-weight:700;
+    cursor:pointer;color:#8a93a6;min-width:48px;text-align:center;user-select:none;line-height:1.15}
+  .tk.most.on{background:#2e9c5a;border-color:#2e9c5a;color:#fff}
+  .tk.least.on{background:#c0392b;border-color:#c0392b;color:#fff}
   .cta{position:sticky;bottom:0;padding:14px 0 4px;background:linear-gradient(0deg,var(--bg) 70%,transparent)}
   button.submit{width:100%;padding:15px;border:0;border-radius:13px;background:#2c3e66;color:#fff;font-size:16px;
     font-weight:600;cursor:pointer;box-shadow:0 6px 18px rgba(44,62,102,.3)}
@@ -63,12 +67,9 @@
   .topic-head:first-child{margin-top:2px}
   .topic-head .ct{font-weight:400;opacity:.82;font-size:12.5px}
   /* biểu đồ cột dọc kết quả */
-  .vchart{display:flex;align-items:flex-end;justify-content:center;gap:20px;height:210px;margin:20px 0 8px;padding:0 6px}
-  .vbar{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
-  .vbar .pct{font-size:14px;font-weight:800;margin-bottom:5px}
-  .vbar .col{width:50px;border-radius:9px 9px 0 0;height:0;transition:height .9s cubic-bezier(.2,.7,.2,1)}
-  .vbar .lbl{margin-top:9px;font-size:18px;font-weight:800}
-  .vbar .nm{font-size:10.5px;color:var(--muted);margin-top:2px;text-align:center;max-width:78px;line-height:1.25}
+  .radar{display:flex;justify-content:center;margin:16px 0 4px}
+  .radar svg{max-width:320px;width:100%;height:auto}
+  .radar-cap{text-align:center;font-size:12.5px;color:var(--muted);margin-top:4px}
   .section h3{font-size:16px;margin:18px 0 6px;display:flex;align-items:center;gap:8px}
   .section ul{margin:6px 0 0;padding-left:20px}
   .section li{margin-bottom:5px;font-size:14.5px}
@@ -132,9 +133,9 @@
   <div class="intro" id="introBox">
     <h2>Cách làm</h2>
     <ol>
-      <li>Mỗi câu là một <b>tình huống thực tế</b> trong nghề. Chọn đáp án <b>giống bạn nhất</b> — phản ứng theo bản năng, đừng cân nhắc lâu.</li>
-      <li>Không có đáp án đúng/sai. Hãy chọn con người thật của bạn, không phải con người bạn "nên là".</li>
-      <li>Làm hết 30 tình huống rồi bấm <b>Xem kết quả</b> để nhận phân tích chi tiết theo nghề BĐS.</li>
+      <li>Mỗi câu có 4 đáp án. Bấm <b style="color:#2e9c5a">✓ Nhất</b> ở đáp án <b>giống bạn nhất</b>, và <b style="color:#c0392b">✗ Ít</b> ở đáp án <b>ít giống bạn nhất</b>. (2 ô khác nhau.)</li>
+      <li>Không có đáp án đúng/sai. Trả lời theo bản năng, đừng cân nhắc lâu.</li>
+      <li>Làm hết 30 câu rồi bấm <b>Xem kết quả</b> để nhận biểu đồ DISC + phân tích theo nghề BĐS.</li>
     </ol>
   </div>
 
@@ -340,7 +341,7 @@ const INFO = {
 const COLORHEX = {D:"#E03B3B", I:"#F2A93B", S:"#3BA55C", C:"#3B7DE0"};
 
 const form = document.getElementById('quiz');
-const answers = {};
+const aMost = {}, aLeast = {}, dispNum = {};
 function shuffle(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -360,12 +361,18 @@ TOPICS.forEach(tp=>{
   head.innerHTML = `${tp.name} <span class="ct">· ${tp.idx.length} câu</span>`;
   form.appendChild(head);
   tp.idx.forEach(i=>{
-    _n++;
+    _n++; dispNum[i]=_n;
     const q = QUESTIONS[i];
     const div = document.createElement('div');
     div.className='q'; div.id='q'+i;
     const opts = shuffle(q.opts).map(o=>`
-      <div class="opt" data-q="${i}" data-d="${o.d}"><span class="mk"></span><span>${o.t}</span></div>`).join('');
+      <div class="opt" data-q="${i}" data-d="${o.d}">
+        <span class="otext">${o.t}</span>
+        <span class="ticks">
+          <button type="button" class="tk most" data-q="${i}" data-d="${o.d}" data-type="most">✓ Nhất</button>
+          <button type="button" class="tk least" data-q="${i}" data-d="${o.d}" data-type="least">✗ Ít</button>
+        </span>
+      </div>`).join('');
     div.innerHTML = `<div class="num">CÂU ${_n}/30</div>
       <div class="text">${q.t}</div>
       <div class="opts">${opts}</div>`;
@@ -377,19 +384,37 @@ const pfill=document.getElementById('pfill'), ptxt=document.getElementById('ptxt
       submitBtn=document.getElementById('submitBtn'), warn=document.getElementById('warn');
 
 form.addEventListener('click', e=>{
-  const opt = e.target.closest('.opt');
-  if(!opt) return;
-  const qi = opt.dataset.q;
-  answers[qi] = opt.dataset.d;
-  // visual select
-  opt.closest('.opts').querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
-  opt.classList.add('sel');
-  document.getElementById('q'+qi).classList.add('answered');
+  const tk = e.target.closest('.tk');
+  if(!tk) return;
+  const qi = tk.dataset.q, d = tk.dataset.d, type = tk.dataset.type;
+  if(type==='most'){
+    if(aLeast[qi]===d) delete aLeast[qi];   // không cho trùng 1 đáp án
+    aMost[qi] = (aMost[qi]===d) ? undefined : d;
+    if(aMost[qi]===undefined) delete aMost[qi];
+  } else {
+    if(aMost[qi]===d) delete aMost[qi];
+    aLeast[qi] = (aLeast[qi]===d) ? undefined : d;
+    if(aLeast[qi]===undefined) delete aLeast[qi];
+  }
+  refreshQ(qi);
   updateProgress();
 });
 
+function refreshQ(qi){
+  const qd = document.getElementById('q'+qi);
+  qd.querySelectorAll('.opt').forEach(o=>{
+    const d = o.dataset.d;
+    o.classList.toggle('is-most',  aMost[qi]===d);
+    o.classList.toggle('is-least', aLeast[qi]===d);
+    o.querySelector('.tk.most').classList.toggle('on',  aMost[qi]===d);
+    o.querySelector('.tk.least').classList.toggle('on', aLeast[qi]===d);
+  });
+  if(aMost[qi]!==undefined && aLeast[qi]!==undefined) qd.classList.add('answered');
+  else qd.classList.remove('answered');
+}
+
 function updateProgress(){
-  const n = Object.keys(answers).length;
+  let n=0; for(let i=0;i<30;i++){ if(aMost[i]!==undefined && aLeast[i]!==undefined) n++; }
   pfill.style.width = (n/30*100)+'%';
   ptxt.textContent = n+' / 30 câu';
   submitBtn.disabled = n<30;
@@ -397,35 +422,43 @@ function updateProgress(){
 }
 
 submitBtn.addEventListener('click', ()=>{
-  if(Object.keys(answers).length<30){
-    const miss=[];
-    for(let i=0;i<30;i++) if(!(i in answers)) miss.push(i+1);
-    warn.textContent='Bạn còn thiếu câu: '+miss.slice(0,10).join(', ')+(miss.length>10?'...':'');
-    document.getElementById('q'+(miss[0]-1)).scrollIntoView({behavior:'smooth',block:'center'});
+  const miss=[];
+  for(let i=0;i<30;i++){ if(aMost[i]===undefined || aLeast[i]===undefined) miss.push({n:dispNum[i], id:i}); }
+  if(miss.length){
+    miss.sort((a,b)=>a.n-b.n);
+    warn.textContent='Còn thiếu (cần chọn cả ✓ Nhất & ✗ Ít) ở câu: '+miss.slice(0,10).map(m=>m.n).join(', ')+(miss.length>10?'...':'');
+    document.getElementById('q'+miss[0].id).scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
   showResult();
 });
 
-function showResult(){
-  const count={D:0,I:0,S:0,C:0};
-  Object.values(answers).forEach(d=>{ if(count[d]!==undefined) count[d]++; });
-  const total=QUESTIONS.length;
-  // tỉ lệ lựa chọn mỗi nhóm
-  const pct={};
-  for(const k in count){ pct[k]=Math.round(count[k]/total*100); }
-  const order = Object.keys(pct).sort((a,b)=>pct[b]-pct[a]);
-  const primary=order[0], secondary=order[1];
+// ===== Vẽ biểu đồ radar 4 trục D-I-S-C =====
+function radarSVG(net){
+  const ks=['D','I','S','C'], ang={D:-90,I:0,S:90,C:180}, cx=150, cy=150, maxR=108;
+  const vals=ks.map(k=>net[k]), mn=Math.min(...vals), mx=Math.max(...vals);
+  const norm=k=> (mx===mn)?0.55:(net[k]-mn)/(mx-mn);
+  const rad=k=> (0.18+0.82*norm(k))*maxR;
+  const P=k=>{const a=ang[k]*Math.PI/180; return [cx+rad(k)*Math.cos(a), cy+rad(k)*Math.sin(a)];};
+  let grid='';
+  [0.25,0.5,0.75,1].forEach(f=>{ const r=f*maxR;
+    grid+=`<polygon points="${ks.map(k=>{const a=ang[k]*Math.PI/180;return (cx+r*Math.cos(a)).toFixed(1)+','+(cy+r*Math.sin(a)).toFixed(1);}).join(' ')}" fill="none" stroke="#e6e8ee" stroke-width="1"/>`; });
+  const axes=ks.map(k=>{const a=ang[k]*Math.PI/180;return `<line x1="${cx}" y1="${cy}" x2="${(cx+maxR*Math.cos(a)).toFixed(1)}" y2="${(cy+maxR*Math.sin(a)).toFixed(1)}" stroke="#e6e8ee" stroke-width="1"/>`;}).join('');
+  const pts=ks.map(P);
+  const poly=pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+  const dots=ks.map((k,idx)=>`<circle cx="${pts[idx][0].toFixed(1)}" cy="${pts[idx][1].toFixed(1)}" r="6.5" fill="${COLORHEX[k]}" stroke="#fff" stroke-width="2"/>`).join('');
+  const labels=ks.map(k=>{const a=ang[k]*Math.PI/180, lx=cx+(maxR+24)*Math.cos(a), ly=cy+(maxR+24)*Math.sin(a);
+    return `<text x="${lx.toFixed(0)}" y="${(ly+6).toFixed(0)}" text-anchor="middle" font-size="20" font-weight="800" fill="${COLORHEX[k]}">${k}</text>`;}).join('');
+  return `<svg viewBox="0 0 300 300" width="300" height="300">${grid}${axes}<polygon points="${poly}" fill="rgba(44,62,102,.13)" stroke="#2c3e66" stroke-width="2.5" stroke-linejoin="round"/>${dots}${labels}</svg>`;
+}
 
+function showResult(){
+  const most={D:0,I:0,S:0,C:0}, least={D:0,I:0,S:0,C:0};
+  for(let i=0;i<30;i++){ most[aMost[i]]++; least[aLeast[i]]++; }
+  const net={}; for(const k in most){ net[k]=most[k]-least[k]; }
+  const order = Object.keys(net).sort((a,b)=>net[b]-net[a]);
+  const primary=order[0], secondary=order[1];
   const info=INFO[primary];
-  const maxp = Math.max(1, ...Object.values(pct));
-  const chartHtml = ['D','I','S','C'].map(k=>`
-    <div class="vbar">
-      <div class="pct" style="color:${COLORHEX[k]}">${pct[k]}%</div>
-      <div class="col" style="background:${COLORHEX[k]}" data-h="${Math.round(pct[k]/maxp*100)}"></div>
-      <div class="lbl" style="color:${COLORHEX[k]}">${k}</div>
-      <div class="nm">${INFO[k].name.split('—')[1] ? INFO[k].name.split('—')[1].trim() : k}</div>
-    </div>`).join('');
 
   const html = `
   <div class="res-card">
@@ -435,7 +468,8 @@ function showResult(){
       <div class="sub">${info.tag} · ${info.nick}</div>
       <div class="sub" style="margin-top:8px">Nhóm phụ của bạn: <b>${secondary}</b> — ${INFO[secondary].name.split('—')[1].split('(')[0].trim()}</div>
     </div>
-    <div class="vchart">${chartHtml}</div>
+    <div class="radar">${radarSVG(net)}</div>
+    <div class="radar-cap">Điểm = số lần <b style="color:#2e9c5a">Giống nhất</b> − số lần <b style="color:#c0392b">Ít giống</b> &nbsp;·&nbsp; D ${net.D} · I ${net.I} · S ${net.S} · C ${net.C}</div>
 
     <div class="section">
       <p style="font-size:15px">${info.desc}</p>
@@ -461,7 +495,6 @@ function showResult(){
   document.getElementById('pbar').style.display='none';
   document.getElementById('introBox').style.display='none';
   res.scrollIntoView({behavior:'smooth'});
-  setTimeout(()=>{ res.querySelectorAll('.vbar .col').forEach(c=>c.style.height=c.dataset.h+'%'); },120);
 }
 </script>
 </body>

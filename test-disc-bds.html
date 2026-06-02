@@ -93,6 +93,17 @@
   .gate button{width:100%;padding:13px;border:0;border-radius:11px;background:#2c3e66;color:#fff;
     font-size:16px;font-weight:600;cursor:pointer}
   .gate .err{color:#E03B3B;font-size:13px;min-height:18px;margin-top:8px}
+  /*RANKUI*/
+  .ranks{display:flex;gap:5px;flex:0 0 auto}
+  .rk{border:1.5px solid #cdd4e2;background:#fff;border-radius:9px;width:34px;height:36px;font-size:15px;font-weight:800;cursor:pointer;color:#9aa3b2;user-select:none;line-height:1;padding:0}
+  .rk[data-r="4"]{color:#2e9c5a;border-color:#bfe6cc}
+  .rk[data-r="1"]{color:#c0392b;border-color:#f0c6bf}
+  .rk.on{color:#fff}
+  .rk.on[data-r="4"]{background:#2e9c5a;border-color:#2e9c5a}
+  .rk.on[data-r="3"]{background:#7cc59a;border-color:#7cc59a}
+  .rk.on[data-r="2"]{background:#e6a99f;border-color:#e6a99f}
+  .rk.on[data-r="1"]{background:#c0392b;border-color:#c0392b}
+  .opt.is-mid{border-color:#cdd6e8;background:#fbfcfe}
 </style>
 </head>
 <body>
@@ -116,7 +127,7 @@
     function unlock(){
       if(inp.value.trim().toUpperCase()===ACCESS_CODE.toUpperCase()){
         sessionStorage.setItem('disc_ok_bds','1'); gate.classList.add('hidden');
-      } else { err.textContent='Mã chưa đúng, thử lại nhé.'; inp.select(); }
+      } else { err.textContent='Mã chưa đúng, nhập lại nhé.'; inp.select(); }
     }
     btn.addEventListener('click',unlock);
     inp.addEventListener('keydown',e=>{ if(e.key==='Enter') unlock(); });
@@ -133,9 +144,9 @@
   <div class="intro" id="introBox">
     <h2>Cách làm</h2>
     <ol>
-      <li>Mỗi câu có 4 đáp án. Bấm <b style="color:#2e9c5a">✓ Nhất</b> ở đáp án <b>giống bạn nhất</b>, và <b style="color:#c0392b">✗ Ít</b> ở đáp án <b>ít giống bạn nhất</b>. (2 ô khác nhau.)</li>
-      <li>Không có đáp án đúng/sai. Trả lời theo bản năng, đừng cân nhắc lâu.</li>
-      <li>Làm hết 30 câu rồi bấm <b>Xem kết quả</b> để nhận biểu đồ DISC + phân tích theo nghề BĐS.</li>
+      <li>Mỗi câu có 4 đáp án. Hãy <b>xếp hạng cả 4</b>: bấm <b style="color:#2e9c5a">4</b> cho đáp án <b>giống bạn nhất</b>, rồi <b>3</b>, <b>2</b>, và <b style="color:#c0392b">1</b> cho đáp án <b>ít giống bạn nhất</b>. Mỗi mức chỉ dùng một lần.</li>
+      <li>Không có đáp án đúng/sai. Hãy chọn theo con người thật của bạn.</li>
+      <li>Xếp đủ cả 30 câu rồi bấm <b>Xem kết quả</b>.</li>
     </ol>
   </div>
 
@@ -165,7 +176,7 @@ const QUESTIONS = [
     {d:"S",t:"Từ tốn hỏi nhu cầu của gia đình, lắng nghe mong muốn của khách."},
     {d:"C",t:"Trình bày bài bản pháp lý, vị trí, số liệu dự án."}]},
   {t:"Quản lý giao chỉ tiêu tháng cao hơn bình thường — phản ứng đầu tiên của bạn?", opts:[
-    {d:"D",t:"\"Ngon, càng cao càng máu\" — coi là một thử thách."},
+    {d:"D",t:"\"Ngon, càng cao càng máu\" — coi là một thách thức."},
     {d:"I",t:"Rủ đồng đội cùng hô quyết tâm cho khí thế."},
     {d:"S",t:"Hơi lo nhưng vẫn nhận, âm thầm lên kế hoạch làm đều."},
     {d:"C",t:"Hỏi rõ cơ sở chỉ tiêu, cách tính và nguồn khách hỗ trợ."}]},
@@ -341,7 +352,7 @@ const INFO = {
 const COLORHEX = {D:"#E03B3B", I:"#F2A93B", S:"#3BA55C", C:"#3B7DE0"};
 
 const form = document.getElementById('quiz');
-const aMost = {}, aLeast = {}, dispNum = {};
+const ans={}, dispNum={};
 function shuffle(arr){
   const a = arr.slice();
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
@@ -362,15 +373,17 @@ TOPICS.forEach(tp=>{
   form.appendChild(head);
   tp.idx.forEach(i=>{
     _n++; dispNum[i]=_n;
-    const q = QUESTIONS[i];
+    const q = QUESTIONS[i]; ans[i]={};
     const div = document.createElement('div');
     div.className='q'; div.id='q'+i;
     const opts = shuffle(q.opts).map(o=>`
       <div class="opt" data-q="${i}" data-d="${o.d}">
         <span class="otext">${o.t}</span>
-        <span class="ticks">
-          <button type="button" class="tk most" data-q="${i}" data-d="${o.d}" data-type="most">✓ Nhất</button>
-          <button type="button" class="tk least" data-q="${i}" data-d="${o.d}" data-type="least">✗ Ít</button>
+        <span class="ranks">
+          <button type="button" class="rk" data-q="${i}" data-d="${o.d}" data-r="4">4</button>
+          <button type="button" class="rk" data-q="${i}" data-d="${o.d}" data-r="3">3</button>
+          <button type="button" class="rk" data-q="${i}" data-d="${o.d}" data-r="2">2</button>
+          <button type="button" class="rk" data-q="${i}" data-d="${o.d}" data-r="1">1</button>
         </span>
       </div>`).join('');
     div.innerHTML = `<div class="num">CÂU ${_n}/30</div>
@@ -383,50 +396,39 @@ TOPICS.forEach(tp=>{
 const pfill=document.getElementById('pfill'), ptxt=document.getElementById('ptxt'),
       submitBtn=document.getElementById('submitBtn'), warn=document.getElementById('warn');
 
-form.addEventListener('click', e=>{
-  const tk = e.target.closest('.tk');
-  if(!tk) return;
-  const qi = tk.dataset.q, d = tk.dataset.d, type = tk.dataset.type;
-  if(type==='most'){
-    if(aLeast[qi]===d) delete aLeast[qi];   // không cho trùng 1 đáp án
-    aMost[qi] = (aMost[qi]===d) ? undefined : d;
-    if(aMost[qi]===undefined) delete aMost[qi];
-  } else {
-    if(aMost[qi]===d) delete aMost[qi];
-    aLeast[qi] = (aLeast[qi]===d) ? undefined : d;
-    if(aLeast[qi]===undefined) delete aLeast[qi];
-  }
-  refreshQ(qi);
-  updateProgress();
+form.addEventListener('click',e=>{
+  const rk=e.target.closest('.rk'); if(!rk) return;
+  const qi=rk.dataset.q, d=rk.dataset.d, r=+rk.dataset.r;
+  const cur=ans[qi]||(ans[qi]={});
+  if(cur[d]===r){ delete cur[d]; }
+  else { for(const k in cur){ if(cur[k]===r) delete cur[k]; } cur[d]=r; }
+  refreshQ(qi); updateProgress();
 });
 
 function refreshQ(qi){
-  const qd = document.getElementById('q'+qi);
+  const qd=document.getElementById('q'+qi), cur=ans[qi]||{};
   qd.querySelectorAll('.opt').forEach(o=>{
-    const d = o.dataset.d;
-    o.classList.toggle('is-most',  aMost[qi]===d);
-    o.classList.toggle('is-least', aLeast[qi]===d);
-    o.querySelector('.tk.most').classList.toggle('on',  aMost[qi]===d);
-    o.querySelector('.tk.least').classList.toggle('on', aLeast[qi]===d);
+    const d=o.dataset.d, r=cur[d];
+    o.classList.toggle('is-most', r===4);
+    o.classList.toggle('is-least', r===1);
+    o.classList.toggle('is-mid', r===2||r===3);
+    o.querySelectorAll('.rk').forEach(b=> b.classList.toggle('on', cur[d]===(+b.dataset.r)));
   });
-  if(aMost[qi]!==undefined && aLeast[qi]!==undefined) qd.classList.add('answered');
-  else qd.classList.remove('answered');
+  qd.classList.toggle('answered', Object.keys(cur).length===4);
 }
 
 function updateProgress(){
-  let n=0; for(let i=0;i<30;i++){ if(aMost[i]!==undefined && aLeast[i]!==undefined) n++; }
-  pfill.style.width = (n/30*100)+'%';
-  ptxt.textContent = n+' / 30 câu';
-  submitBtn.disabled = n<30;
-  if(n===30) warn.textContent='';
+  let n=0; for(let i=0;i<30;i++){ if(ans[i] && Object.keys(ans[i]).length===4) n++; }
+  pfill.style.width=(n/30*100)+'%'; ptxt.textContent=n+' / 30 câu';
+  submitBtn.disabled=n<30; if(n===30) warn.textContent='';
 }
 
 submitBtn.addEventListener('click', ()=>{
   const miss=[];
-  for(let i=0;i<30;i++){ if(aMost[i]===undefined || aLeast[i]===undefined) miss.push({n:dispNum[i], id:i}); }
+  for(let i=0;i<30;i++){ if(!ans[i]||Object.keys(ans[i]).length<4) miss.push({n:dispNum[i], id:i}); }
   if(miss.length){
     miss.sort((a,b)=>a.n-b.n);
-    warn.textContent='Còn thiếu (cần chọn cả ✓ Nhất & ✗ Ít) ở câu: '+miss.slice(0,10).map(m=>m.n).join(', ')+(miss.length>10?'...':'');
+    warn.textContent='Còn xếp chưa đủ 4 mức ở câu: '+miss.slice(0,10).map(m=>m.n).join(', ')+(miss.length>10?'...':'');
     document.getElementById('q'+miss[0].id).scrollIntoView({behavior:'smooth',block:'center'});
     return;
   }
@@ -453,9 +455,8 @@ function radarSVG(net){
 }
 
 function showResult(){
-  const most={D:0,I:0,S:0,C:0}, least={D:0,I:0,S:0,C:0};
-  for(let i=0;i<30;i++){ most[aMost[i]]++; least[aLeast[i]]++; }
-  const net={}; for(const k in most){ net[k]=most[k]-least[k]; }
+  const net={D:0,I:0,S:0,C:0};
+  for(let i=0;i<30;i++){ const cur=ans[i]; for(const k in cur){ net[k]+=cur[k]; } }
   const order = Object.keys(net).sort((a,b)=>net[b]-net[a]);
   const primary=order[0], secondary=order[1];
   const info=INFO[primary];
@@ -469,7 +470,7 @@ function showResult(){
       <div class="sub" style="margin-top:8px">Nhóm phụ của bạn: <b>${secondary}</b> — ${INFO[secondary].name.split('—')[1].split('(')[0].trim()}</div>
     </div>
     <div class="radar">${radarSVG(net)}</div>
-    <div class="radar-cap">Điểm = số lần <b style="color:#2e9c5a">Giống nhất</b> − số lần <b style="color:#c0392b">Ít giống</b> &nbsp;·&nbsp; D ${net.D} · I ${net.I} · S ${net.S} · C ${net.C}</div>
+    <div class="radar-cap">Điểm = tổng mức xếp hạng (<b style="color:#2e9c5a">4 = giống nhất</b> … <b style="color:#c0392b">1 = ít giống nhất</b>) &nbsp;·&nbsp; D ${net.D} · I ${net.I} · S ${net.S} · C ${net.C}</div>
 
     <div class="section">
       <p style="font-size:15px">${info.desc}</p>
